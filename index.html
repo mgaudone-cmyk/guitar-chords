@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIk1hdHQncyBUb29sIiwgInNob3J0X25hbWUiOiAiTWF0dCdzIFRvb2wiLCAiZGVzY3JpcHRpb24iOiAiR3VpdGFyIGNob3JkIHNoZWV0IGFwcCIsICJzdGFydF91cmwiOiAiLiIsICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLCAiYmFja2dyb3VuZF9jb2xvciI6ICIjMUExQTFBIiwgInRoZW1lX2NvbG9yIjogIiMxQTFBMUEiLCAib3JpZW50YXRpb24iOiAiYW55IiwgImljb25zIjogW3sic3JjIjogImRhdGE6aW1hZ2UvcG5nO2Jhc2U2NCxpVkJPUncwS0dnb0FBQUFOU1VoRVVnQUFBTUFBQUFEQUVBSUFBQUNOTGljVEFBQUFJR05JVWswQUFIb21BQUNBaEFBQStnQUFBSURvQUFCMU1BQUE2bUFBQURxWUFBQVhjSnk2VVR3QUFBQUdZa3RIUlAvLy8vLy8vd2xZOTl3QUFBQUhkRWxOUlFmcUF4UVRFeHBoUFkyZEFBQUkyVWxFUVZSNDJ1M2RmV3hWWndISDhlZTVWR0RvbmJNVjVtNUxCOHRZMGRHTUNiR01UbXcxQmFJQ3JYTkYyQ2FRR1dDQUsyOFpZUVlaTG83VXJVQzFpd08zRU53Y0U4TjRrNFVYbFU2cHBjWnVhTHVOcmpoS0taMjB0bG9UZ1JVNGozK2NtQ3pHbUh2dTIrOEMzOC9mNStWNXpoL2YzSHZ1T2MrMWtVZ2tFb2tZQUVpNWtIb0FBSzVmQkFpQURBRUNJRU9BQU1nUUlBQXlCQWlBREFFQ0lKT2hIb0F4eG9UbTIwUG0vS2RLTTcvdm5oL3RoaDgzRDR3WmZPdEI5K1c4cXB3Nk55L3lrYXdqcHVhaml3ZFBOSDlTanhTNG1sdzQ5c0dENW83Tyt0NGNzNlRsNW82TGRsdlQ2bFBkOXNDSkZXY2F6UGIzQzNwSDJRWGVHbmUzR2FJYW9WVTlpQmc1bUZYa2ZqaHRWRUdOZS8yK2svZnVkVHRVbHdDNG51MTZxRzZzTGR0YmNTelhGcDE5dkdlTVhaN0tzNmMwUUxrcmh2M2RmVy9weTZWTHZYRmp0bzNJTTFOVE9WVUEvMTlUYmR0OGM3aTZaSGRocUtHOXVLdkZyazMyR1pNZW9JR3ZaUHpSblgzNG0xUGVjNCtVL2JMd3BOdVY3Q2tCaU45T2QzU2NuYm0xOWxDZnJlNWZmN25jWmlmakxFbThDWjNkbjFYaHF2Zis3b21idk50SUQzQjF1Yy9lMitoK3ZtL2N1b2lYRS9sRDFqUlhuWXl6REFpSHcrRndPTEVIL2N5WGNwZTdyejMzL0tQRHZHZnNhUHVXdVpTS0N3WWcwZXdnZTlwNHBSY25EbmV2dlhIdVpKZWQwZjJYdmk3N2JxS09uK0FBM1RuNTFudzNiZE5qQ3d1OFZ6VVhERUJ5VEowNFB0K2RhT3hzdmN0K3ZmdFVYNzE5Si81akp1d3JtUDhoYmVQS0JiTzgzY0pyQkNDcE5xMWErRW52Ri80Tmx2aVBsb0FBRFZ5ZHNjT2QzZHErZkpXM1ZIMXhBS1RDQzh1V2ZkdDd6UCtKS1o3akpDQkE4NG9tZjl4VjJCdnRiODFsOVdVQmtBcWhHYUVkNXJ6LzYzWmN4NGxuNTl3ancvTGNPdjl1dWZxQ0FFZzEvOWR0Ly9tKzJJNFFWNEFxRHBmV2VRWHFpd0JBeVgrME9MWjlZd3hROWxOWnpXNURmdEdJTGFaRVBYMEFTdjViRGY3TFZVSDNqVEZBMDZzbnRMdGE5Y1FCcEF2L3ZjNmdld1VPVU9oSis2WTVYL1ppNFhHZWJBYndILzRyNWY3S0Z0SHZGVGhBdHpSa3Ryck42c2tDU0VmK29qclJieDg0UUtPcmhoZVlXZXBwQWtoSC9ucGUwVzhmT0VENTYwY09kU3lqQWVCLzhKY1NqSDc3d0FIS081Y3oyTTFSVHhOQU92SlhNWTErKzhBQml0eVQyV0ZxMU5NRWtJNzhCWlNqM3o1d2dHNllNT2dsazdDWDhRRmNTNEt1M2M2L1lnQ1FJVUFBWkFnUUFCa0NCRUNHQUFHUUlVQUFaQWdRQUJrQ0JFQ0dBQUdRSVVBQVpBZ1FBQmtDQkVDR0FBR1FJVUFBWkFnUUFCa0NCRUNHQUFHUUlVQUFaQWdRQUJrQ0JFQ0dBQUdRSVVBQVpBZ1FBQmtDQkVDR0FBR1FJVUFBWkFnUUFCa0NCRUFtUXowQUpOSlg1cSs1YzBEdnBiWXJNOHhROVZqU1JmV0JSeTVkZWZuVG9lRlBtNW5xc2VDLzhRa0lnQXdCQWlCRGdBRElFQ0FBTWdRSWdBd0JBaUJEZ0FESThCd1F6Tnlla2h4djVlekc0a1d1VWoyV0pPRUpvRFRGSnlBQU1nUUlnQXdCQWlCRGdBRElFQ0FBTWdRSWdBd0JBaUJEZ0FESUVDQUFNZ1FJZ0F3QkFpQkRnQURJRUNBQU1nUUlnQXdCQWlCRGdBRElFQ0FBTWdRSWdBd0JBaUJEZ0FESUVDQUFNZ1FJZ0F4L3l3UFRkSC9ibisyQlYwYSt2dGNzVm84bFdxRlY5a2JUWDc1d1VwSDdpWG9zaUIwQmdtbjhUV3VtYlc0YzFYck1OcXZIRXEzUVorMno1a0s1bWRSM1phQjZMSWdkWDhFQXlCQWdBRElFQ0lBTUFRSWdRNEFBeUJBZ0FETDhEQTh6dDZja3gxczV1N0Y0a2F0VWp5V0FQc01QOEZjOVBnRUJrQ0ZBQUdRSUVBQVpBZ1JBaGdBQmtDRkFBR1FJRUFBWkFnUkFoZ0FCa0NGQUFHUUlFQUFaQWdSQWhnQUJrQ0ZBQUdRSUVBQVpBZ1JBaGdBQmtDRkFBR1FJRUFBWkFnUkFoZ0FCa0NGQUFHUUlFQUFaQWdSQWhnQUJrQ0ZBQUdRSUVBQVpBZ1JBaGdBQmtDRkFBR1FJRUFBWkFnUkFoZ0FCa0NGQUFHUXkxQU5BSWozUStNWEZYdVdWVE0rWmowVy9WLzZDRWZ2ZEJHUE1mbE9wbmdHdUx3VG9taks3c1hpUml5VWkrOVVqeC9XSnIyQUFaQWdRQUJrQ0JFQ0dBQUdRSVVBQVpBZ1FBQmtDQkVDR0FBR1FJVUFBWkFnUUFCa0NCRUNHQUFHUUlVQUFaQWdRQUJrQ0JFQ0dBQUdRSVVBQVpBZ1FBQmtDQkVDR0FBR1FJVUFBWkFnUUFCa0NCRUNHQUFHUUlVQUFaQWdRQUJrQ0JFQ0dBQUdRSVVBQVpBZ1FBQmtDQkVDR0FBR1FDUnlnZnoxNzhmZm1Mdld3QWFTakM4YytlTkRjRWYzMmdRUFVlYW1uMkN4UlR4TkFPdXFzNzgwSjBvZkFBV3BaMFZGb3Q2cW5DU0FkdGR6Y2NkRnVpMzc3d0FGcXZuaDZpbjFOUFUwQTZhaHA5YWx1ZXlENjdRTUg2SVE5TTliOFREMU5BT25veElvekRXWjc5TnNIRHRCZmQvZCt4MzVMUFUwQTZlajlndDVSZGtIMDJ3Y09rTGZGVFRaRGR0NStkTG90VjA4V1FMclk5VkRkV0Z2bXJYRjNteUhSN3hYamMwRDdXaHVXMkMrb3B3d2dYZXl0T0pacmk0THVGV09BT3FmMDFOcEhtK2UwdFpnQU41d0FYSHVhYXR2bW04Tm5IKzhaWTVjSDNUZXVKNkUzemQ2OUtkU29uajRBcGVxUzNZV2hodGoyalN0QTdWVmRuN0RmM2ZYVnV0dHRtZm9pQUVpMW5lN29PRHV6dmJpcnhhNk43UWdKZUJmc2haOGV2TTMrMk52amxRZTUrUVRnNnVYKzZTYVpqSzIxaC9wc2RUekhTVUNBK3I5eGViek5mbmpqeGgrRmZxQytMQUJTWVY3dWhzclFwdjcxbDh0dGRqekhTZGpiOEdjSDlsVGJpcVdWei8wdGRMLzY0Z0JJbG1YUGJONGVLdTM4WE04K1d4SC8wUWFFdytGd09KeW93WFdmNnF1Mzc3eHg3bVNYblRGMTR2aDhkMEo1cVFBa2p2L3g0dTFmdGUreGV4SjF6S1NzQi9UV29kTk5kdC9jbTZycVF6WCtkOFhVWFNRQWllUGYyNTFYVkhVdVZQUDJyOXMzMkZjVGUvd2tMa2ptZjBpYjFyaTJNOVRoM3kxUDdxVUNrRGorcjl2VFAvL0VQMEx2K1RkWWtuRVdHNGxFSXBGSWFxYVVlMlJZbmx0WGNiaTB6aXZJTHhxeHhaU2s1cndBb3VFL1d1dy8zK2MvWkpQc002WTBRQitXL1ZSV3M5c3d2WHBDdTZzdGU3SHd1TnVWK2pFQThOL3I5Rit1OHQ5d1NPWFpaUUg2c05DVDlrMXovcGFHekZhM2VYVFY4QUl6SzMvOXlLRnVhdDY1bk1GdVR1U2V6QTVUYzhPRVFTK1pkN1hqQks0dS9nTEsvaXFtL2xLQy9ucGUvcUk2L3NvVy91dmxxaEdtUllBQVhKLzRWd3dBTWdRSWdBd0JBaUJEZ0FESUVDQUFNZ1FJZ015L0FYdldPN1YxUXVLTEFBQUFBRWxGVGtTdVFtQ0MiLCAic2l6ZXMiOiAiMTkyeDE5MiIsICJ0eXBlIjogImltYWdlL3BuZyIsICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSJ9LCB7InNyYyI6ICJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQWdBQUFBSUFFQUlBQUFBcmlwL3VBQUFBSUdOSVVrMEFBSG9tQUFDQWhBQUErZ0FBQUlEb0FBQjFNQUFBNm1BQUFEcVlBQUFYY0p5NlVUd0FBQUFHWWt0SFJQLy8vLy8vL3dsWTk5d0FBQUFIZEVsTlJRZnFBeFFURXhwaFBZMmRBQUFXNDBsRVFWUjQydTNkL1p1V1paM0g4ZXNhWmtUUllTZ1JaUUlCMFVocEJRMG1GQkF3V3lKOEtLQUNkWHZBU2d6RDJNVGpNTTFGMCt3UWs2VEZNSlVlMW9SV3hWSkpVVnRBbU9RcEZVdE5EWkdBUlJCWFFFVmhodnZhSCtZSHljTlZZMkhPbWZtK1h2L0ErZUhtbCtzOTV6MXo1ZFhWMWRYVjFSa0FBQkJBV2VvQkFBQkE0eEVBQUFBUWlBQUFBSUJBQkFBQUFBUWlBQUFBSUJBQkFBQUFnUWdBQUFBSVJBQUFBRUFnQWdBQUFBSVJBQUFBRUlnQUFBQ0FRQVFBQUFBRUlnQUFBQ0FRQVFBQUFJRUlBQUFBQ0VRQUFBQkFJQUlBQUFBQ0VRQUFBQkNJQUFBQWdFREtVdzlvcnZadlZmR0hZblg3S1ZVcnN0czdmYlQ5cWRtMVhTODg5TmZGWlYxMmRSaVpUZjdRMTl2L3ZwamE0Y3gyWTdQWmxWY2ZNRDliVXZHcDhrZXpUYWxYQXdBMGRmVm43NXFkSGJ4dDR2YitXYitYcG0rZGxvMVpOM256Y2ZuRU5YL2JPRDI3Zk0yNFRRUHlLOWJlODlJdDJhVE5ZN2QrT1B2Y214VjFnL051cVZjM0ozbDFkWFYxZFhYcUdVMVg2NnFLRHNYYTdsL3VlR2syb2YrS25tY1hsY08vWFhOV3NhVE5RYTBIWmsrblhnY0FFTjBibCt3NE11dHg3MFhMcHVmOWFqL3c1RFg1YTZ2TzNqQXErL0dPRit2VzVwMVRyMnVLQk1EZktkOVE5bmkyNVpnMVhkWVZaNHc2ZDBDSFlsYS9LVWMvVkJ5YWVoY0FBUCtZSll2K2NtbjI0cDFYTDFwVk51YkpuV3Z5L083NnNsTFhyRjNxWGVrSmdLenRKVzBtRkl1SERldjd4K0tKYzdZUEhWNmNtM29SQUFCNzN5M2Q1ejJTejdqdm51WEg1YjIyZld2N0ZmbUExSXZTQ0JvQVZVc08vRkl4Zjh6RGc3Y1cxNC9vM2IrbXVEUDFJZ0FBR3MrYzJiVno4bEd6dnJiZ21IekMxaE5lLzJVK0pQV2l4aE1vQVBZN29ueDh0bUhFU2YwSGwrNFllK2JRNTRwdnBGNEVBRUI2TXo4NWIzVStZMDc3MnZxeUVUdGZydjlaMWpIMW9uMHJSQUQwcXV2MlRISFNsUGxmdTdNMFAvVVdBQUNhcmtuZnVmblNzc0VyVnp4ZnloZWwzckt2dEtxc3JLeXNyRXc5WSs5cnZhMGlMOWFlZjlIcFE0dEY0Njg2Zlh1eE9QVWlBQUNhdW4vK3hQRW5GeTk4c0VkbCs2em04ZHBWNjdPbHUzYVYzc3lucHQ2MU43WEFGNEYxR3RsK1hESGxucTllUHJEVWFmandta0hGMHRTTEFBQm9Ub2JYMVBRcWx0Nzl4OGtyUzRkM09ybjlXY1dVMUl2MnBoWjFBMUR6NlI2ZGk2N1huMy9lS2FYWjJmSFprVm1SZWhFQUFNMVYvbXIrcDZ4MHhvQVRPaFR6bm5sNTNiUDVFZXVmZTNsYnZpWDFydi8zdjZ0bC9BN0E4Qi9VZktPMDVJTGpQOU9wNkp0NkN3QUFMZFAxRzMvelpyNTg3cjhzdTZLc1grb3RlNjdaZndWbzlNQkIwMHIvN3RFZkFJQjk3WUpEUDdOLzBYZjBwa0dmTDAxUHZXWFBOZU1BYVBqb3gzNTM2R3ZGZWFtM0FBQVF4ZGpIaC9ZdXhqWDhHRHIxbGozUkxIOEhZUGgvMUZ4V1duTGVoYWQyS3M1SXZRVUFnSWlPRzNUa3ptenUvL1I4dFVlMjdMbUgxaS9QYjA2OTZQMXFaamNBRGIvbTIzRDVrbm9MQUFEUk5Yd1J2ZUVaTmZXVzk2dlozQUEwL0FHbTZ5ODg3OU9sMmFtM0FBREFXMDd1MTd0djhjcjg3U3VQeW4rNDdlbnRLL0lIVXk5Nk44M2dCcUIxNjRwMnhkcGJwazM4ZnVtaTFGc0FBT0Nkeld6MXIwK1ZMbXg0SFczcUxlK21HZHdBbkgvNTZXY1VpejdjdHRPbXJFbC9sQUFBaEhaOGRtUldWSFU4c0R4YnZIVHBYMWJsLzUxNjBEdHIwamNBdmZvY1VWWU1iSGdUVytvdEFBRHczb1lQcnhsVUxPMVYxKzJaNHFUVVc5NVpFMzBSMkg0SGwzOGwyM0R2ckN1TzJ0VWg5UllBQU5nVHA0NjdiSDJyVFR1ZnI1K2VkVXk5NVMxTjlBWmd4T2IrNWFVNXFWY0FBTUNlRzNGUy84R2xPMUt2ZUxzbUZ3QlZqeHo0eFdMKzJBZUhkaXZHcGQ0Q0FBQjdidXlaUTU4cnZsRzE1TUF2RmZOVGIzbExrd3VBTVRjTmZxcVlsbm9GQUFEc0hXTWVIcnkxdUQ3MWlyYzBvUUJvKzZNMmx4V0xSNHp1UDZKb2NoY2xBQUN3WjBiMDdsOVQzTm4ya2pZVGlzV3B0MlJaa3dxQVlhZjFmYXhZbVhvRkFBRHNmY09HOWYxajhVVHFGVm5XUkFLZ3ZGVDJRcmJsbkZWRFQvQzlmd0FBV3FKenRnOGRYcHhidnFIczhXeEwyaVZOSWdCNjd0ZWxLRTVQdlFJQUFQYXRZOVowV1ZlY2tYWkRrd2lBa1JjUDdGNmFsWG9GQUFEc1c2UE9IZENoU1B6Y216Z0FXaDlXMGJsWTIyL2dSNjdNRGt1N0JBQUE5clYrVTQ1K3FEaTBkVlZGaDJKdHFnMkpBNkQ3clIzdnlMNlpkZ01BQURTbTdsL3VlR2sySWRYcGlRT2cveXM5THlvT1Nyc0JBQUFhVS84VlBjOHVLbE9kbmpnQVRyMm1abnl4Sk8wR0FBQm9UTU8vWFhOV3VtZmdaQUd3ZjEzRmdtTDFBVmUxL212MlRLb05BQURRK05vYzFIcGc5dlQrclNyK1VLeHUvTk9UQlVEN21WWFBacmVuT2gwQUFOSnFQNlZxUllybjRXUUIwUG0wUTg3SnBxUTZIUUFBMHVyMDBmYW5adGMyL3JuSkFxRExqQTZMaTh0U25RNEFBR2wxdmZEUVg2ZDRIazRYQUljZk9qNzd0MVNuQXdCQVdsMTJkUmlaVFc3OGM1TUZRS2ZKN1I4cnBxWTZIUUFBMHZyUTE5di9Qc1h6Y0xJQU9HUjgxWVFzOFd1UUFRQWdsUTVudGh1YnpXNzhjNU1GUU51cGJXb3pid0FBQUNDb3lxc1BtSi9pZVRoWkFKVGYybXAwOW5LcTB3RUFJSzJLVDVVL21tMXEvSE1UdndrWUFBQm9UQUlBQUFBQ0VRQUFBQkNJQUFBQWdFQUVBQUFBQkNJQUFBQWdFQUVBQUFDQkNBQUFBQWhFQUFBQVFDQUNBQUFBQWhFQUFBQVFpQUFBQUlCQUJBQUFBQVFpQUFBQUlCQUJBQUFBZ1FnQUFBQUlSQUFBQUVBZ0FnQUFBQUlSQUFBQUVJZ0FBQUNBUUFRQUFBQUVJZ0FBQUNBUUFRQUFBSUVJQUFBQUNFUUFBQUJBSUFJQUFBQUNFUUFBQUJDSUFBQUFnRUFFQUFBQUJDSUFBQUFnRUFFQUFBQ0JDQUFBQUFoRUFBQUFRQ0FDQUFBQUFoRUFBQUFRaUFBQUFJQkFCQUFBQUFRaUFBQUFJQkFCQUFBQWdRZ0FBQUFJUkFBQUFFQWdBZ0FBQUFJUkFBQUFFSWdBQUFDQVFBUUFBQUFFSWdBQUFDQVFBUUFBQUlFSUFBQUFDRVFBQUFCQUlBSUFBQUFDRVFBQUFCQ0lBQUFBZ0VBRUFBQUFCQ0lBQUFBZ0VBRUFBQUNCQ0FBQUFBaEVBQUFBUUNBQ0FBQUFBaEVBQUFBUWlBQUFBSUJBQkFBQUFBUWlBQUFBSUJBQkFBQUFnUWdBQUFBSVJBQUFBRUFnQWdBQUFBSVJBQUFBRUlnQUFBQ0FRQVFBQUFBRUlnQUFBQ0FRQVFBQUFJRUlBQUFBQ0VRQUFBQkFJQUlBQUFBQ0VRQUFBQkNJQUFBQWdFQUVBQUFBQkNJQUFBQWdFQUVBQUFDQkNBQUFBQWhFQUFBQVFDQUNBQUFBQWhFQUFBQVFpQUFBQUlCQUJBQUFBQVFpQUFBQUlCQUJBQUFBZ1pTbkhnQ3dkOVRmdE91cDdJTTc1dFROeXc1UHZRVWFRMFhYVm5kbkwrMzNrNHI1MmZyVVc0RG1SQUFBTGNTRFBSODlMKzgwOWZhN2JpMzdVK290MEJpR0Q2dVpXbHA2UWZhWjNrV2YxRnVBNXNSWGdBQUFJQkFCQUFBQWdRZ0FBQUFJUkFBQUFFQWdBZ0FBQUFJUkFBQUFFSWdBQUFDQVFBUUFBQUFFSWdBQUFDQVFBUUFBQUlFSUFBQUFDRVFBQUFCQUlBSUFBQUFDRVFBQUFCQ0lBQUFBZ0VBRUFBQUFCQ0lBQUFBZ0VBRUFBQUNCQ0FBQUFBaEVBQUFBUUNBQ0FBQUFBaWxQUFFDZzVaczQrYk8xcFo3RFR1eTdzSGdpOVJaYW1ENnBCd0ROanhzQUFBQUlSQUFBQUVBZ0FnQUFBQUlSQUFBQUVJZ0FBQUNBUUFRQUFBQUVJZ0FBQUNBUUFRQUFBSUVJQUFBQUNFUUFBQUJBSUFJQUFBQUNFUUFBQUJDSUFBQUFnRUFFQUFBQUJDSUFBQUFnRUFFQUFBQ0JDQUFBQUFoRUFBQUFRQ0FDQUFBQUFoRUFBQUFRaUFBQUFJQkFCQUFBQUFRaUFBQUFJQkFCQUFBQWdRZ0FBQUFJUkFBQUFFQWdBZ0FBQUFJUkFBQUFFSWdBQUFDQVFBUUFBQUFFSWdBQUFDQVFBUUFBQUlFSUFBQUFDRVFBQUFCQUlBSUFBQUFDRVFBQUFCQ0lBQUFBZ0VBRUFBQUFCQ0lBQUFBZ0VBRUFBQUNCQ0FBQUFBaEVBQUFBUUNBQ0FBQUFBaEVBQUFBUWlBQUFBSUJBQkFBQUFBUWlBQUFBSUJBQkFBQUFnUWdBQUFBSVJBQUFBRUFnQWdBQUFBSVJBQUFBRUlnQUFBQ0FRQVFBQUFBRUlnQUFBQ0FRQVFBQUFJRUlBQUFBQ0VRQUFBQkFJQUlBQUFBQ0VRQUFBQkNJQUFBQWdFQUVBQUFBQkNJQUFBQWdFQUVBQUFDQmxLY2VBTkR5L1ZmSGxWZmw3VmI5Zk1OSHN2bXB0OUFZL3VuMnJyMnlUdzJhZSt6NllrZnFMUUJ2SndBQTlybVY1ejcvdTd4MlpmYjg3L0pUVW0raE1ldzZ2L1Q1MHRKQjJiRzlzejZwdHdDOG5hOEFBUUJBSUFJQUFBQUNFUUFBQUJDSUFBQUFnRUFFQUFBQUJDSUFBQUFnRUFFQUFBQ0JDQUFBQUFoRUFBQUFRQ0FDQUFBQUFoRUFBQUFRaUFBQUFJQkFCQUFBQUFRaUFBQUFJQkFCQUFBQWdRZ0FBQUFJUkFBQUFFQWdBZ0FBQUFJUkFBQUFFRWg1NmdFQUxkL0V5Wit0TGZVY2RtTGZoY1VUcWJmUWFQcWtIZ0R3enR3QUFBQkFJQUlBQUFBQ0VRQUFBQkNJQUFBQWdFQUVBQUFBQkNJQUFBQWdFQUVBQUFDQkNBQUFBQWhFQUFBQVFDQUNBQUFBQWhFQUFBQVFpQUFBQUlCQUJBQUFBQVFpQUFBQUlCQUJBQUFBZ1FnQUFBQUlSQUFBQUVBZ0FnQUFBQUlSQUFBQUVJZ0FBQUNBUUFRQUFBQUVJZ0FBQUNBUUFRQUFBSUVJQUFBQUNFUUFBQUJBSUFJQUFBQUNFUUFBQUJDSUFBQUFnRUFFQUFBQUJDSUFBQUFnRUFFQUFBQ0JDQUFBQUFoRUFBQUFRQ0FDQUFBQUFoRUFBQUFRaUFBQUFJQkFCQUFBQUFRaUFBQUFJQkFCQUFBQWdRZ0FBQUFJUkFBQUFFQWdBZ0FBQUFJUkFBQUFFSWdBQUFDQVFBUUFBQUFFSWdBQUFDQVFBUUFBQUlFSUFBQUFDRVFBQUFCQUlBSUFBQUFDRVFBQUFCQ0lBQUFBZ0VBRUFBQUFCQ0lBQUFBZ0VBRUFBQUNCQ0FBQUFBaEVBQUFBUUNBQ0FBQUFBaEVBQUFBUWlBQUFBSUJBQkFBQUFBUWlBQUFBSUJBQkFBQUFnUWdBQUFBSVJBQUFBRUFnQWdBQUFBSVJBQUFBRUlnQUFBQ0FRQVFBQUFBRUlnQUFBQ0FRQVFBQUFJRUlBQUFBQ0VRQUFBQkFJQUlBQUFBQ0VRQUFBQkNJQUFBQWdFQUVBQUFBQkNJQUFBQWdFQUVBQUFDQkNBQUFBQWhFQUFBQVFDQUNBQUFBQWhFQUFBQVFpQUFBQUlCQUJBQUFBQVFpQUFBQUlCQUJBQUFBZ1FnQUFBQUlSQUFBQUVBZ0FnQUFBQUlSQUFBQUVJZ0FBQUNBUUFRQUFBQUVJZ0FBQUNBUUFRQUFBSUVJQUFBQUNFUUFBQUJBSU9XcEJ3RHNIY05PN0x1d2VHTFlBMzIvdnl2MWxIZXlNSHNpOVFRQXlESTNBQUFBRUlvQUFBQ0FRQVFBQUFBRUlnQUFBQ0FRQVFBQUFJRUlBQUFBQ0VRQUFBQkFJQUlBQUFBQ0VRQUFBQkNJQUFBQWdFQUVBQUFBQkNJQUFBQWdFQUVBQUFDQkNBQUFBQWhFQUFBQVFDQUNBQUFBQWhFQUFBQVFpQUFBQUlCQUJBQUFBQVFpQUFBQUlCQUJBQUFBZ1FnQUFBQUlSQUFBQUVBZ0FnQUFBQUlSQUFBQUVJZ0FBQUNBUUFRQUFBQUVJZ0FBQUNBUUFRQUFBSUVJQUFBQUNFUUFBQUJBSUFJQUFBQUNFUUFBQUJDSUFBQUFnRUFFQUFBQUJDSUFBQUFnRUFFQUFBQ0JDQUFBQUFoRUFBQUFRQ0FDQUFBQUFoRUFBQUFRaUFBQUFJQkFCQUFBQUFRaUFBQUFJQkFCQUFBQWdRZ0FBQUFJUkFBQUFFQWdBZ0FBQUFJUkFBQUFFSWdBQUFDQVFBUUFBQUFFSWdBQUFDQVFBUUFBQUlFSUFBQUFDRVFBQUFCQUlBSUFBQUFDRVFBQUFCQ0lBQUFBZ0VBRUFBQUFCQ0lBQUFBZ0VBRUFBQUNCQ0FBQUFBaEVBQUFBUUNBQ0FBQUFBaEVBQUFBUWlBQUFBSUJBQkFBQUFBUWlBQUFBSUJBQkFBQUFnUWdBQUFBSVJBQUFBRUFnQWdBQUFBSVJBQUFBRUlnQUFBQ0FRQVFBQUFBRUlnQUFBQ0FRQVFBQUFJRUlBQUFBQ0VRQUFBQkFJQUlBQUFBQ0VRQUFBQkNJQUFBQWdFQUVBQUFBQkNJQUFBQWdFQUVBQUFDQkNBQUFBQWhFQUFBQVFDQUNBQUFBQWhFQUFBQVFpQUFBQUlCQUJBQUFBQVFpQUFBQUlCQUJBQUFBZ1FnQUFBQUlSQUFBQUVBZ0FnQUFBQUlSQUFBQUVFaXlBS2k3di83NHJFUHFmejRBQUtSUmYvYXUyZG5Calg5dXNnQjQ5ZUkzaG1UOVVwME9BQUJwYlp1NHZYK0s1K0ZrQWJEcHRpMHpzOUdwVGdjQWdMUmVtcjUxV2phbThjOU5GZ0RyZjdyNUUvbkVWS2NEQUVCYTZ5WnZQaTdGODNDeUFGalRhdE9kMmVSVXB3TUFRRnByL3JaeGVuWjU0NStiTEFCZXVIYmpGL0lyVXAwT0FBQnByUm0zYVVDSzUrRmtBYkR1ejV2dnpTNU1kVG9BQUtTMTlwNlhic2ttTmY2NXlRSmc4NlN0ZmJMUHBUb2RBQURTMmp4MjY0ZFRQQThuQzRBM2Q5V2RtSGZiL3RxT1JkblJxVFlBQUVEamUrT1NIVWRtUGQ2c3FCdWNkMnY4MHhPL0NYanVENWY5S3ZjMkFBQUFBcm4zb21YVDB6MERKdzZBMmo1UDNwcS9tbllEQUFBMHB0b1BQSGxOL2xxcTB4TUh3S3FmYjdneW01WjJBd0FBTktaVloyOFlsZjA0MWVtSkEyREgxcnBOZWVjbGs1NCtKZCtZZGdrQUFPeHJTeGI5NWRMc3hSMHYxcTNOTzZmYWtEZ0FHdHh4NCtKTmVZTFhJQU1BUUdPNjgrcEZxOG9TUC9jMmlRQjRxc3VhVHZsdlU2OEFBSUI5NjhtZGEvTDg3clFibWtRQTFIY3M5YzdhM2RKbTN0ejh4dFJiQUFCZzc3dWwrN3hIOGhuMVphV3VXYnUwUzVwRUFEUzQ3NzdsSDh1UFRiMENBQUQydnZ2dVdYNWMzaXYxaWl4clVnR3c3YXJ0MC9JQmN4NnZYWmFQVEwwRkFBRDJqam16YStma283WjlhL3NWK1lEVVc3S3NTUVZBZzFrbkxhaktMMGk5QWdBQTlvNVpYMXR3VEQ0aDlZcTNOTGtBMk5ydjlWL2tRMmJlTnUrby9JYlVXd0FBWU0vTi9PUzgxZm1NclNlOC9zdDhTT290YjJseUFkQmd6c08xQzhwR3BWNEJBQUI3Yms3NzJ2cXlFYWxYdkYwVERZQ2R6OWRQenpwT0duTFR5TEltVkVzQUFQQitUUHJPelplV0RkNzVjdjNQc282cHQ3eGRFdzJBQmlzclZ2ZklINTQ3ZDluQy9PT3B0d0FBd0h1YnUyelp5dnpqSzFjOFg4b1hwZDd5enBwMEFEU1k4YjI1RCtSM1pUZG45emVIdFFBQXhGUlVGMmRsNVRPK04zZGVmbGZxTGUrbUdUeFM3MmhiVitTZHgrNjY3cGl5YTFOdkFRQ0FkM2JPaEtuZktidG14NDY2TFhubjFGdmVUYXZLeXNyS3lzclVNOTdidHFlM3I4Z2ZmT2JsZGMvbVI1emNyM2ZmNHBYVWl3QUFJTXV5N05JZi9lSW5aZDJmZm1EdDR2ejIxRnZlV3pPNEFkamRzdDg5c3paLzRmcEhmN011WDU1NkN3QUEwVjIvOFRkdjVzc2JubEZUYjNtL21zME53TzZlZTJqOTh2em11aGZxejhodU9HN1FrVHV6dWFrWEFRQVF5OHplOHg3UFo5ejF3Qjl1YUhwLzZQUGROYk1iZ04zTlhyUndRdG41RFI5OTZpMEFBRVF4ODN2ekRzcC9NcnZEd3Y4c0c1OTZ5NTVveGdIUW9PR2piN2g4U2IwRkFJQ1dyT0dMNkEwL2hrNjlaYy9sMWRYVjFkWFZxV2ZzSFRXZjd0RzU2SHJsdDc1MFhtbFY2aTBBQUxRY0RiL20yN3krNi85L2FmWTNBTHRyK0M4Wis0UHJuaXk3cnVIdnNLWmVCQUJBczNWemRuOVdOdmJHNi81V2RsM0xlUFJ2MEtKdUFIYlh1blZGdTJMdHVPOE9IMXA4ZG5oTlRhOWlhZXBGQUFBMEQzUG5MbHVZZjd6aGRiUU43NlJLdldodmFyRUJzTHRlZlk0b0t3Wk8rZjVYcnl3dFNMMEZBSUNtYTlLUW0wYVdEVmxac2JwSC9uRHFMZnRLaUFCb3NOL0I1Vi9KTm96WTNMKzhOR2ZzZzBPN0ZlTlNMd0lBSUwyWnQ4MDdLcjloenNPMUM4cEc3WHkrZm5yV01mV2lmU3RRQU95dTZwRUR2MWpNSDNQVDRLZUthU05HOXg5UjNKRjZFUUFBaldmTzQ3WEw4cEd6VGxwUWxWK3d0ZC9ydjhpSHBGN1VlSUlHd083YS9xak5aY1hpWWFmMWZheFllYzZxb1NlNEdRQUFhSWx1YVROdmJuN2pmZmN0LzFoKzdMYXJ0ay9MQjZSZWxJWUErRHZscGJJWHNpMDk5K3RTRktlUHZIaGc5OUtzZmdNL2NtVjJXT3BkQUFEOFk1Wk1ldnFVZk9NZE55N2VsSTk1cXN1YVR2bHY2enVXZW1mdFV1OUtUd0M4aDlhSFZYUXUxbmEvdGVNZDJUZjd2OUx6b3VLZ1U2K3BHVjhzT2VDcTFuL05ua205RGdBZ3V1MnY3VmlVSFQzM2g4dCtsZmVyN2ZQa3JmbXJxMzYrNGNwczJvNnRkWnRhMWwvdjJWc0V3QjdhdjY1aVFiRzYvY3lxWjdQYk81OTJ5RG5abEM0ek9pd3VMdXR5K0tIanMzL3JOTG45WThYVVE4WlhUY2htdFozYXBqWmJVbjVycTlIWnk2bFhBd0EwZFhYMzF4K2ZkWGoxNGplR1pQMDIzYlpsWmpaNi9VODNmeUtmdUtiVnBqdXp5UzljdS9FTCtSWHIvcno1M3V6Q3paTzI5c2srOSthdXVoUHpicWxYTnljQ0FBQUFBbWxSYndJR0FBRGVuUUFBQUlCQUJBQUFBQVFpQUFBQUlCQUJBQUFBZ1FnQUFBQUlSQUFBQUVBZ0FnQUFBQUlSQUFBQUVJZ0FBQUNBUUFRQUFBQUVJZ0FBQUNBUUFRQUFBSUVJQUFBQUNFUUFBQUJBSUFJQUFBQUNFUUFBQUJDSUFBQUFnRUQrRi8vaEdoVk9BNVBJQUFBQUFFbEZUa1N1UW1DQyIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIn1dfQ==">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Matt's Tool">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1A1A1A">
+  <link rel="apple-touch-icon" href="data:image/png;base64,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">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matt's Tool – Guitar Chord Sheets</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0c0a;
+    --surface: #1a1714;
+    --surface2: #242018;
+    --border: #3a3328;
+    --amber: #d4922a;
+    --amber-light: #f0b84a;
+    --amber-dim: #8a5f1a;
+    --text: #e8dcc8;
+    --text-dim: #8a7d6a;
+    --text-muted: #5a5040;
+    --green: #4caf7d;
+    --red: #cf6679;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Spectral', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    margin-right: 8px;
+  }
+  .logo span { font-style: italic; color: var(--amber-light); }
+  .sep { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
+
+  .ctrl-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  label.ctrl-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  button {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface2);
+    color: var(--text);
+    letter-spacing: 0.05em;
+  }
+  button:hover { border-color: var(--amber-dim); color: var(--amber-light); }
+  button.active { background: var(--amber); color: #0e0c0a; border-color: var(--amber); }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 110px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    padding: 0;
+    border: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--amber);
+    cursor: pointer;
+  }
+
+  .spacer { flex: 1; }
+
+  .transpose-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--amber-light);
+    min-width: 80px;
+    text-align: center;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: 1fr;
+    overflow: hidden;
+    min-height: 0;
+    height: 0; /* force grid children to respect overflow */
+  }
+
+  /* ── SIDEBAR ── */
+  aside {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .tab-bar { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .tab-btn {
+    flex: 1; padding: 10px;
+    border: none; border-radius: 0;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+  }
+  .tab-btn.active { color: var(--amber); background: rgba(212,146,42,0.07); border-bottom: 2px solid var(--amber); }
+  .tab-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
+  .tab-panel.active { display: flex; }
+
+  .sidebar-section {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .sidebar-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .song-list { flex: 1; overflow-y: auto; padding: 8px; min-height: 0; }
+  .song-list::-webkit-scrollbar { width: 4px; }
+  .song-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .song-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 12px; border-radius: 6px; cursor: pointer;
+    border: 1px solid transparent; transition: all 0.15s; margin-bottom: 2px;
+  }
+  .song-item:hover { background: var(--surface2); border-color: var(--border); }
+  .song-item.active { background: rgba(212,146,42,0.12); border-color: var(--amber-dim); }
+  .song-item-icon { font-size: 1rem; flex-shrink: 0; }
+  .song-item-info { flex: 1; min-width: 0; }
+  .song-item-name { font-size: 0.82rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .song-item-key { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--text-dim); }
+  .song-item-del { opacity: 0; background: none; border: none; color: var(--red); font-size: 0.9rem; padding: 2px 6px; cursor: pointer; border-radius: 3px; }
+  .song-item:hover .song-item-del { opacity: 1; }
+
+  .sb-input {
+    width: 100%; padding: 6px 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; outline: none;
+    margin-bottom: 6px;
+  }
+  .sb-input:focus { border-color: var(--amber-dim); }
+  .sb-row { display: flex; gap: 6px; margin-bottom: 6px; }
+  .sb-row .sb-input { margin-bottom: 0; }
+  textarea.sb-input { min-height: 120px; resize: vertical; line-height: 1.6; }
+  .sb-btn { width: 100%; margin-bottom: 6px; }
+
+  .drive-hint { font-size: 0.65rem; color: var(--text-muted); line-height: 1.6; font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
+  .drive-hint strong { color: var(--amber-dim); }
+
+  /* ── VIEWER ── */
+  #viewer {
+    overflow-y: auto;
+    padding: 48px 64px;
+    position: relative;
+    height: 100%;
+    min-height: 0;
+    box-sizing: border-box;
+  }
+  #viewer::-webkit-scrollbar { width: 5px; }
+  #viewer::-webkit-scrollbar-track { background: transparent; }
+  #viewer::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .song-header { margin-bottom: 36px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+  .song-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 700; color: var(--amber-light); margin-bottom: 6px; }
+  .song-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-dim); display: flex; gap: 20px; flex-wrap: wrap; }
+  .song-meta span { display: flex; align-items: center; gap: 5px; }
+
+  /* All monospace so chord spacing aligns exactly with lyrics */
+  .chord-sheet { font-family: 'JetBrains Mono', monospace; font-size: 1em; }
+
+  .line-pair { display: block; margin-bottom: 0.1em; }
+  .chord-line {
+    display: block; color: var(--amber-light); font-weight: 600;
+    letter-spacing: 0.04em; white-space: pre; line-height: 1.5;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .lyric-line {
+    display: block; color: var(--text); white-space: pre; line-height: 1.6;
+    font-family: 'JetBrains Mono', monospace; margin-bottom: 0.9em;
+  }
+  .lyric-only {
+    display: block; color: var(--text); white-space: pre; line-height: 1.6;
+    font-family: 'JetBrains Mono', monospace; margin-bottom: 0.2em;
+  }
+  .blank-line { display: block; height: 0.8em; }
+  .section-header {
+    display: block; color: var(--amber-dim); font-size: 0.7rem;
+    text-transform: uppercase; letter-spacing: 0.2em;
+    margin-top: 1.8em; margin-bottom: 0.5em;
+    font-family: 'JetBrains Mono', monospace; font-weight: 600;
+    border-left: 2px solid var(--amber-dim); padding-left: 8px;
+  }
+
+  .empty-state {
+    display: flex; flex-direction: column; height: 100%;
+    align-items: center; justify-content: center;
+    gap: 16px; color: var(--text-muted); text-align: center;
+  }
+  .empty-guitar { font-size: 4rem; opacity: 0.3; }
+  .empty-state h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-style: italic; color: var(--text-dim); }
+  .empty-state p { font-size: 0.82rem; font-family: 'JetBrains Mono', monospace; max-width: 300px; line-height: 1.6; }
+
+  .scroll-bar {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+    color: var(--text-dim); display: none; align-items: center; gap: 10px; z-index: 200;
+  }
+  .scroll-bar.visible { display: flex; }
+  .scroll-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 20px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+    color: var(--text); z-index: 300; transition: transform 0.3s; pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  .loading { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--amber); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+
+  /* ── CONFIRM MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500; opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  }
+  .modal-overlay.visible { opacity: 1; pointer-events: all; }
+  .modal-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 24px 28px; min-width: 260px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .modal-msg { font-size: 0.82rem; color: var(--text); margin-bottom: 18px; line-height: 1.5; }
+  .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; grid-template-rows: 260px 1fr; }
+    #viewer { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Matt's<span> Tool</span></div>
+  <div class="sep"></div>
+
+  <div class="ctrl-group">
+    <label class="ctrl-label">Transpose</label>
+    <button onclick="transpose(-1)">−1</button>
+    <div class="transpose-display" id="transposeDisplay">Original</div>
+    <button onclick="transpose(+1)">+1</button>
+    <button onclick="resetTranspose()" style="font-size:0.65rem">Reset</button>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="ctrl-group">
+    <label class="ctrl-label">Scroll</label>
+    <button id="scrollBtn" onclick="toggleScroll()">▶ Auto</button>
+    <input type="range" id="scrollSpeed" min="1" max="20" value="4" title="Scroll speed" oninput="updateScrollSpeed()">
+    <label class="ctrl-label" id="speedLabel">4×</label>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="ctrl-group">
+    <label class="ctrl-label">Size</label>
+    <button onclick="changeFontSize(-1)">A−</button>
+    <button onclick="changeFontSize(1)">A+</button>
+  </div>
+
+  <div class="spacer"></div>
+  <div id="loadingIndicator" style="display:none"><div class="loading"></div></div>
+</header>
+
+<main>
+  <aside>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('library')" id="tab-library">📁 Library</button>
+      <button class="tab-btn" onclick="switchTab('drive')" id="tab-drive">☁ Drive</button>
+      <button class="tab-btn" onclick="switchTab('manual')" id="tab-manual">✏ Manual</button>
+    </div>
+
+    <!-- LIBRARY -->
+    <div class="tab-panel active" id="panel-library">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Your Songs</div>
+        <input class="sb-input" type="text" id="searchInput" placeholder="Search songs…" oninput="renderSongList()" style="margin-bottom:0">
+      </div>
+      <div class="song-list" id="songList"></div>
+      <div class="sidebar-section" style="border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:6px">
+        <button class="sb-btn" onclick="saveLibraryAsFile()" title="Download this app with all your songs baked in — open it on any device">💾 Save Library as File</button>
+        <label class="sb-btn" style="cursor:pointer;text-align:center" title="Load a previously saved library file">📂 Load Library File<input type="file" accept=".html" style="display:none" onchange="loadLibraryFile(event)"></label>
+      </div>
+    </div>
+
+    <!-- DRIVE -->
+    <div class="tab-panel" id="panel-drive" style="overflow-y:auto">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Load from Google Drive</div>
+        <div class="drive-hint">
+          <strong>① Auto-load:</strong> Share your doc (Anyone with link → Viewer), paste the link below.<br><br>
+          <strong>② Manual paste:</strong> Open doc → Select All → Copy → paste in the box that appears.
+        </div>
+        <div class="sb-row">
+          <input class="sb-input" type="text" id="driveSongTitle" placeholder="Song title (optional)">
+          <input class="sb-input" type="text" id="driveKey" placeholder="Key" style="width:60px;flex-shrink:0">
+        </div>
+        <div class="sb-row">
+          <input class="sb-input" type="text" id="driveUrl" placeholder="Paste Google Docs link…" style="margin-bottom:0">
+          <button onclick="loadFromDrive()" id="driveLoadBtn" style="white-space:nowrap">Load</button>
+        </div>
+        <div id="driveFallback" style="display:none;margin-top:10px">
+          <div class="drive-hint" style="color:var(--red)">⚠ Auto-load blocked. Paste content below:</div>
+          <textarea class="sb-input" id="drivePasteArea" placeholder="Paste your Google Doc text here…"></textarea>
+          <button class="sb-btn" onclick="loadFromPaste()">+ Add Pasted Content</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANUAL -->
+    <div class="tab-panel" id="panel-manual" style="overflow-y:auto">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Add Song Manually</div>
+        <div class="sb-row">
+          <input class="sb-input" type="text" id="manTitle" placeholder="Song title">
+          <input class="sb-input" type="text" id="manKey" placeholder="Key" style="width:60px;flex-shrink:0">
+        </div>
+        <textarea class="sb-input" id="manContent" placeholder="Paste chords + lyrics here.&#10;&#10;Format: chord line above lyric line.&#10;&#10;Example:&#10;[Verse]&#10;G        Em&#10;Amazing grace how sweet the sound&#10;C        G&#10;That saved a wretch like me"></textarea>
+        <button class="sb-btn" onclick="addManualSong()">+ Add to Library</button>
+        <div class="sidebar-title" style="margin-top:12px">Open a file</div>
+        <input type="file" id="fileInput" accept=".txt,.cho,.crd,.docx,.rtf" style="display:none" onchange="loadFile(event)">
+        <button class="sb-btn" onclick="document.getElementById('fileInput').click()">📂 Open .txt / .docx / .rtf…</button>
+      </div>
+    </div>
+  </aside>
+
+  <div id="viewer">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-guitar">🎸</div>
+      <h2>No song selected</h2>
+      <p>Add a song from the Manual tab, load from Google Drive, or open a file.</p>
+    </div>
+    <div id="songView" style="display:none"></div>
+  </div>
+</main>
+
+
+<!-- Confirm modal (replaces confirm() which is blocked in sandboxed iframes) -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-msg" id="confirmMsg">Are you sure?</div>
+    <div class="modal-btns">
+      <button onclick="resolveConfirm(false)" style="border-color:var(--border)">Cancel</button>
+      <button onclick="resolveConfirm(true)" style="border-color:var(--red);color:var(--red)" id="confirmOkBtn">Remove</button>
+    </div>
+  </div>
+</div>
+
+<div class="scroll-bar" id="scrollBar">
+  <div class="scroll-dot"></div>
+  <span id="scrollLabel">Auto-scrolling… (4×)</span>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const NOTES      = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const NOTES_FLAT = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+
+let songs        = JSON.parse(localStorage.getItem('fretboard_songs') || '[]');
+let currentSong  = null;
+let transposeSteps = 0;
+let scrollRAF    = null;
+let scrolling    = false;
+let scrollSpeed  = 4;
+let fontSize     = 16;
+
+// ── Transpose ────────────────────────────────────────────────
+function noteIndex(n) {
+  let i = NOTES.indexOf(n);
+  if (i === -1) i = NOTES_FLAT.indexOf(n);
+  return i;
+}
+function transposeNote(note, steps) {
+  const i = noteIndex(note);
+  if (i === -1) return note;
+  return NOTES[((i + steps) % 12 + 12) % 12];
+}
+function transposeChordLine(line, steps) {
+  if (steps === 0) return line;
+  return line.replace(/[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d)?/g, ch => {
+    if (!/^[A-G]/.test(ch)) return ch;
+    return ch.replace(/^([A-G][b#]?)(.*?)(\/[A-G][b#]?)?$/, (_, root, mod, bass) =>
+      transposeNote(root, steps) + mod + (bass ? '/' + transposeNote(bass.slice(1), steps) : '')
+    );
+  });
+}
+
+function saveCurrentSettings() {
+  if (!currentSong) return;
+  currentSong.settings = { transpose: transposeSteps, scrollSpeed, fontSize };
+  const idx = songs.findIndex(s => s.id === currentSong.id);
+  if (idx !== -1) songs[idx] = currentSong;
+  saveSongs();
+}
+
+function transpose(delta) {
+  transposeSteps = ((transposeSteps + delta) % 12 + 12) % 12;
+  if (transposeSteps > 6) transposeSteps -= 12;
+  updateTransposeDisplay(); renderCurrentSong(); saveCurrentSettings();
+}
+function resetTranspose() {
+  transposeSteps = 0;
+  updateTransposeDisplay(); renderCurrentSong(); saveCurrentSettings();
+}
+function updateTransposeDisplay() {
+  document.getElementById('transposeDisplay').textContent =
+    transposeSteps === 0 ? 'Original' : (transposeSteps > 0 ? '+' : '') + transposeSteps + ' st';
+}
+
+// ── Line parsing ─────────────────────────────────────────────
+function isChordLine(line) {
+  const t = line.trim();
+  if (!t || t.length > 100) return false;
+  const words = t.split(/\s+/);
+  const pat = /^[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d|aug|dim)?$/;
+  const hits = words.filter(w => pat.test(w));
+  return hits.length >= 1 && hits.length / words.length >= 0.5;
+}
+function isSectionHeader(line) {
+  const t = line.trim();
+  if (/^\[.{1,40}\]$/.test(t)) return true;
+  if (/^(Verse|Chorus|Bridge|Pre-?Chorus|Outro|Intro|Hook|Tag|Solo|Interlude|Refrain|Break)(\s+\d+)?[:\s]*$/i.test(t)) return true;
+  if (/^[A-Z]{3,15}(\s+\d)?$/.test(t) && t.length < 20) return true;
+  return false;
+}
+
+// ── Render ───────────────────────────────────────────────────
+function renderCurrentSong() {
+  if (!currentSong) return;
+  const songView = document.getElementById('songView');
+  const viewer   = document.getElementById('viewer');
+  const lines    = currentSong.content.split('\n');
+
+  let html = `<div class="song-header">
+    <div class="song-title">${esc(currentSong.title)}</div>
+    <div class="song-meta">`;
+  if (currentSong.key)
+    html += `<span>🎵 Key: <strong style="color:var(--amber-light)">${esc(transposeNote(currentSong.key, transposeSteps))}</strong></span>`;
+  if (transposeSteps !== 0)
+    html += `<span>🔀 ${transposeSteps > 0 ? '+' : ''}${transposeSteps} semitones</span>`;
+  if (currentSong.source)
+    html += `<span>☁ <a href="${esc(currentSong.source)}" target="_blank" style="color:var(--amber-dim)">View source</a></span>`;
+  html += `</div></div><div class="chord-sheet">`;
+
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (!line.trim()) {
+      html += `<span class="blank-line"></span>`; i++;
+    } else if (isSectionHeader(line)) {
+      html += `<span class="section-header">${esc(line.trim())}</span>`; i++;
+    } else if (isChordLine(line)) {
+      const chords = transposeChordLine(line, transposeSteps);
+      const next   = lines[i + 1];
+      const hasLyric = next !== undefined && next.trim() !== '' && !isChordLine(next) && !isSectionHeader(next);
+      if (hasLyric) {
+        html += `<span class="line-pair"><span class="chord-line">${esc(chords)}</span><span class="lyric-line">${esc(next)}</span></span>`;
+        i += 2;
+      } else {
+        html += `<span class="line-pair"><span class="chord-line">${esc(chords)}</span></span>`; i++;
+      }
+    } else {
+      html += `<span class="lyric-only">${esc(line)}</span>`; i++;
+    }
+  }
+
+  html += `</div>`;
+  songView.innerHTML = html;
+  viewer.style.fontSize = fontSize + 'px';
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Library ──────────────────────────────────────────────────
+function saveSongs() {
+  const data = JSON.stringify(songs);
+  // Try Claude artifact persistent storage first, then localStorage fallback
+  if (window.storage && typeof window.storage.set === 'function') {
+    window.storage.set('fretboard_songs', data).catch(() => {});
+  }
+  try { localStorage.setItem('fretboard_songs', data); } catch(e) {}
+}
+
+async function loadSongs() {
+  // Try Claude artifact persistent storage first
+  if (window.storage && typeof window.storage.get === 'function') {
+    try {
+      const result = await window.storage.get('fretboard_songs');
+      if (result && result.value) return JSON.parse(result.value);
+    } catch(e) {}
+  }
+  // Fallback to localStorage
+  try {
+    const stored = localStorage.getItem('fretboard_songs');
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  return null;
+}
+
+function renderSongList() {
+  const q    = (document.getElementById('searchInput').value || '').toLowerCase();
+  const list = document.getElementById('songList');
+  const filt = songs.filter(s => s.title.toLowerCase().includes(q));
+  if (!filt.length) {
+    list.innerHTML = `<div style="padding:20px;font-size:0.72rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;text-align:center">No songs yet.<br>Add one from Manual or Drive.</div>`;
+    return;
+  }
+  list.innerHTML = filt.map(s => `
+    <div class="song-item ${currentSong?.id === s.id ? 'active' : ''}" data-id="${s.id}">
+      <span class="song-item-icon">${s.source ? '☁' : '🎸'}</span>
+      <div class="song-item-info">
+        <div class="song-item-name">${esc(s.title)}</div>
+        <div class="song-item-key">${s.key ? 'Key of ' + esc(s.key) : 'Unknown key'}</div>
+      </div>
+      <button class="song-item-del" data-del="${s.id}">✕</button>
+    </div>`).join('');
+}
+
+function selectSong(id) {
+  currentSong = songs.find(s => s.id === id) || null;
+  if (!currentSong) return;
+  transposeSteps = currentSong.settings?.transpose   ?? 0;
+  scrollSpeed    = currentSong.settings?.scrollSpeed ?? 4;
+  fontSize       = currentSong.settings?.fontSize    ?? 16;
+  document.getElementById('scrollSpeed').value = scrollSpeed;
+  document.getElementById('speedLabel').textContent = scrollSpeed + '×';
+  document.getElementById('viewer').style.fontSize = fontSize + 'px';
+  updateTransposeDisplay();
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('songView').style.display = 'block';
+  renderCurrentSong();
+  renderSongList();
+  switchTab('library');
+}
+
+// Custom confirm (native confirm() blocked in sandboxed iframes)
+let _confirmResolve = null;
+function showConfirm(msg) {
+  return new Promise(resolve => {
+    _confirmResolve = resolve;
+    document.getElementById('confirmMsg').textContent = msg;
+    document.getElementById('confirmModal').classList.add('visible');
+  });
+}
+function resolveConfirm(val) {
+  document.getElementById('confirmModal').classList.remove('visible');
+  if (_confirmResolve) { _confirmResolve(val); _confirmResolve = null; }
+}
+
+async function deleteSong(e, id) {
+  e.stopPropagation();
+  const ok = await showConfirm('Remove this song from your library?');
+  if (!ok) return;
+  songs = songs.filter(s => s.id !== id);
+  saveSongs();
+  if (currentSong?.id === id) {
+    currentSong = null;
+    document.getElementById('emptyState').style.display = '';
+    document.getElementById('songView').style.display = 'none';
+  }
+  renderSongList();
+}
+
+function addManualSong() {
+  const title   = document.getElementById('manTitle').value.trim() || 'Untitled Song';
+  const key     = document.getElementById('manKey').value.trim();
+  const content = document.getElementById('manContent').value;
+  if (!content.trim()) { showToast('Please enter some content', 'error'); return; }
+  const song = { id: Date.now().toString(), title, key, content: cleanText(content), source: null };
+  songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+  document.getElementById('manTitle').value = '';
+  document.getElementById('manKey').value = '';
+  document.getElementById('manContent').value = '';
+  showToast('Song added! ✓', 'success');
+}
+
+// ── Pure-JS .docx parser (no library needed) ─────────────────
+async function extractDocxText(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  const decoder = new TextDecoder();
+
+  function u16(o) { return bytes[o] | (bytes[o+1] << 8); }
+  function u32(o) { return (bytes[o] | (bytes[o+1]<<8) | (bytes[o+2]<<16) | (bytes[o+3]<<24)) >>> 0; }
+
+  // Walk ZIP local-file entries to find word/document.xml
+  let offset = 0, docXml = null;
+  while (offset < bytes.length - 30) {
+    if (u32(offset) !== 0x04034b50) break;
+    const method     = u16(offset + 8);
+    const compressed = u32(offset + 18);
+    const fnLen      = u16(offset + 26);
+    const exLen      = u16(offset + 28);
+    const name       = decoder.decode(bytes.slice(offset + 30, offset + 30 + fnLen));
+    const dataStart  = offset + 30 + fnLen + exLen;
+    const chunk      = bytes.slice(dataStart, dataStart + compressed);
+
+    if (name === 'word/document.xml') {
+      if (method === 0) {
+        docXml = decoder.decode(chunk);
+      } else if (method === 8) {
+        const ds = new DecompressionStream('deflate-raw');
+        const w = ds.writable.getWriter();
+        const r = ds.readable.getReader();
+        w.write(chunk); w.close();
+        const parts = [];
+        for (;;) { const {done,value} = await r.read(); if (done) break; parts.push(value); }
+        const out = new Uint8Array(parts.reduce((n,p) => n+p.length, 0));
+        let p = 0; for (const part of parts) { out.set(part, p); p += part.length; }
+        docXml = decoder.decode(out);
+      }
+      break;
+    }
+    offset = dataStart + compressed;
+  }
+
+  if (!docXml) throw new Error('Could not find word/document.xml inside the .docx file');
+
+  // Parse XML: each <w:p> = one line, collect text from all <w:t> children
+  const xmlDoc = new DOMParser().parseFromString(docXml, 'application/xml');
+  const ns = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  const lines = [];
+  for (const para of xmlDoc.getElementsByTagNameNS(ns, 'p')) {
+    let line = '';
+    for (const t of para.getElementsByTagNameNS(ns, 't')) line += t.textContent;
+    lines.push(line);
+  }
+  return lines.join('\n');
+}
+
+// ── File loading ──────────────────────────────────────────────
+async function loadFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const ext   = file.name.split('.').pop().toLowerCase();
+  const title = file.name.replace(/\.[^.]+$/, '');
+  try {
+    let text = '';
+    if (ext === 'docx' || ext === 'doc') {
+      text = await extractDocxText(await file.arrayBuffer());
+    } else {
+      text = await file.text();
+      if (ext === 'rtf') text = stripRtf(text);
+    }
+    text = cleanText(text);
+    if (!text.trim()) throw new Error('No text content found in file');
+    const song = { id: Date.now().toString(), title, key: detectKey(text), content: text, source: null };
+    songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+    showToast('File loaded! ✓', 'success');
+  } catch(err) {
+    showToast('Could not read file: ' + err.message, 'error');
+  }
+  event.target.value = '';
+}
+
+function stripRtf(rtf) {
+  return rtf.replace(/\\[a-z]+[-]?\d*/gi,' ').replace(/[{}\\]/g,'').replace(/[ \t]+/g,' ').trim();
+}
+// ── Word doc format fixups ─────────────────────────────────────
+// Fix chords/labels merged with no space by Word (e.g. "INTROAm E7GDFCDmE7")
+function preprocessLine(line) {
+  const PURE_CHORD = /^[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d|aug|dim)?$/;
+  const CHORD_PFX  = /^([A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d|aug|dim)?)/;
+  const LABEL      = /^(INTRO|OUTRO|VERSE|CHORUS|BRIDGE|SOLO|HOOK|TAG|BREAK|REFRAIN|INTERLUDE|X\d+)$/i;
+
+  function expandMerged(tok) {
+    if (PURE_CHORD.test(tok)) return null;
+    const out = []; let rem = tok;
+    while (rem) { const m = CHORD_PFX.exec(rem); if (!m) return null; out.push(m[1]); rem = rem.slice(m[1].length); }
+    return out.length > 1 ? out : null;
+  }
+
+  // Separate label glued directly to first chord: "INTROAm" → "INTRO Am"
+  const fixed = line.replace(
+    /(INTRO|OUTRO|VERSE|CHORUS|BRIDGE|SOLO|HOOK|TAG|BREAK|REFRAIN|INTERLUDE)([A-G])/gi,
+    '$1 $2'
+  );
+
+  const tokens = fixed.split(/\s+/).filter(Boolean);
+  if (!tokens.length) return line;
+
+  const isNonLyric = t => PURE_CHORD.test(t) || LABEL.test(t) || /^#?\d+$/.test(t) || t === '=' || !!expandMerged(t);
+  if (!tokens.every(isNonLyric)) return fixed; // has lyrics, just return label-fixed
+
+  const needsExpand = tokens.some(t => expandMerged(t));
+  if (!needsExpand && fixed === line) return line; // nothing changed
+
+  // Expand merged chord runs ("E7GDFCDmE7" → "E7  G  D  F  C  Dm  E7")
+  const expanded = tokens.flatMap(t => expandMerged(t) || [t]);
+  return expanded.join('  ');
+}
+
+// Split lines that mix chords and lyrics onto separate lines
+// e.g. "Dm    My head grew heavy" → "Dm\nMy head grew heavy"
+// e.g. "lyric lyric hairG  D"    → "         G  D\nlyric lyric hair"
+function splitHybridLines(text) {
+  const PURE_CHORD = /^[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d|aug|dim)?$/;
+  // (?<![A-Z0-9]) catches chords glued to end of lyric words (e.g. "hairG")
+  const CHORD_FIND = /(?<![A-Z0-9])([A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d|aug|dim)?)(?!\w)/g;
+
+  function looksLikeLyric(str) {
+    return str.split(' ').some(w => /[aeiouAEIOU]/.test(w) && w.length > 1);
+  }
+
+  function trySplit(line) {
+    if (line.includes('=')) return null;
+    const tokens = line.trim().split(/\s+/).filter(Boolean);
+    if (tokens.length < 2) return null;
+    const chords = tokens.filter(t => PURE_CHORD.test(t.replace(/[.,]$/, '')));
+    const lyrics = tokens.filter(t => !PURE_CHORD.test(t.replace(/[.,]$/, '')));
+    if (!chords.length || !lyrics.length) return null;
+    if (chords.length / tokens.length >= 0.5) return null;
+    if (!looksLikeLyric(lyrics.join(' '))) return null;
+
+    const positions = [];
+    CHORD_FIND.lastIndex = 0;
+    let m;
+    while ((m = CHORD_FIND.exec(line)) !== null) {
+      if (PURE_CHORD.test(m[1])) positions.push([m.index, m.index + m[1].length, m[1]]);
+    }
+    if (!positions.length) return null;
+
+    const chArr = Array(line.length).fill(' ');
+    for (const [s, , chord] of positions)
+      for (let i = 0; i < chord.length && s + i < chArr.length; i++) chArr[s + i] = chord[i];
+    const chordLine = chArr.join('').trimEnd();
+
+    let lyricLine = line;
+    for (const [s, e] of [...positions].reverse())
+      lyricLine = lyricLine.slice(0, s) + ' '.repeat(e - s) + lyricLine.slice(e);
+    // Remove chord glued to end of a word (e.g. "hairG" → "hair")
+    lyricLine = lyricLine.replace(/([a-z])([A-G][b#]?\d*)\b/g, '$1');
+    lyricLine = lyricLine.trim().replace(/  +/g, ' ');
+
+    // Detect if all chords appear AFTER the lyric text ends.
+    // e.g. "Cool wind in my hair G    D" → G and D are for the NEXT line.
+    // In that case return [lyric, chord] so chord ends up above the next line.
+    let lyricOnly = line;
+    for (const [s, e] of [...positions].reverse())
+      lyricOnly = lyricOnly.slice(0, s) + ' '.repeat(e - s) + lyricOnly.slice(e);
+    const lyricEnd = lyricOnly.trimEnd().length;
+    const allChordsAfterLyric = positions.every(([s]) => s >= lyricEnd);
+
+    return allChordsAfterLyric
+      ? [lyricLine, chordLine]   // chord belongs above the NEXT line
+      : [chordLine, lyricLine];  // chord belongs above THIS line (normal)
+  }
+
+  return text.split('\n').flatMap(line => {
+    const preprocessed = preprocessLine(line);
+    const r = trySplit(preprocessed);
+    return r ? [r[0], r[1]] : [preprocessed];
+  }).join('\n');
+}
+
+function cleanText(text) {
+  return splitHybridLines(
+    text
+      .replace(/\r\n/g,'\n').replace(/\r/g,'\n')
+      .replace(/[\u200B-\u200D\uFEFF\u00A0]/g,' ')
+      .replace(/\n{3,}/g,'\n\n')
+      .split('\n').map(l => l.trimEnd()).join('\n')
+  ).trim();
+}
+function detectKey(text) {
+  const m = text.match(/key\s*[=:\-]\s*([A-G][b#]?m?)/i) || text.match(/\bkey of ([A-G][b#]?m?)\b/i);
+  return m ? m[1] : '';
+}
+
+// ── Google Drive ──────────────────────────────────────────────
+async function loadFromDrive() {
+  const url        = document.getElementById('driveUrl').value.trim();
+  const titleInput = document.getElementById('driveSongTitle').value.trim();
+  const keyInput   = document.getElementById('driveKey').value.trim();
+  if (!url) { showToast('Please paste a Google Docs link', 'error'); return; }
+  const match = url.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+  if (!match) { showToast('Could not find a Google Docs ID in that URL', 'error'); return; }
+  const exportUrl = `https://docs.google.com/document/d/${match[1]}/export?format=txt`;
+  const proxies = [
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => u
+  ];
+  setLoading(true);
+  let loaded = false;
+  for (const mkUrl of proxies) {
+    try {
+      const resp = await fetch(mkUrl(exportUrl), { signal: AbortSignal.timeout(8000) });
+      if (!resp.ok) continue;
+      const text = await resp.text();
+      if (!text || text.length < 10) continue;
+      const title = titleInput || extractTitle(text) || 'Untitled Song';
+      const song  = { id: Date.now().toString(), title, key: keyInput || detectKey(text), content: cleanText(text), source: url };
+      songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+      document.getElementById('driveUrl').value = '';
+      document.getElementById('driveSongTitle').value = '';
+      document.getElementById('driveKey').value = '';
+      document.getElementById('driveFallback').style.display = 'none';
+      showToast('Loaded from Google Drive! ✓', 'success');
+      loaded = true; break;
+    } catch(e) {}
+  }
+  if (!loaded) {
+    document.getElementById('driveFallback').style.display = 'block';
+    showToast('Auto-load failed — paste content below', 'error');
+  }
+  setLoading(false);
+}
+
+function loadFromPaste() {
+  const content    = document.getElementById('drivePasteArea').value.trim();
+  const titleInput = document.getElementById('driveSongTitle').value.trim();
+  const keyInput   = document.getElementById('driveKey').value.trim();
+  const url        = document.getElementById('driveUrl').value.trim();
+  if (!content) { showToast('Please paste some content first', 'error'); return; }
+  const title = titleInput || extractTitle(content) || 'Untitled Song';
+  const song  = { id: Date.now().toString(), title, key: keyInput || detectKey(content), content: cleanText(content), source: url || null };
+  songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+  ['drivePasteArea','driveUrl','driveSongTitle','driveKey'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('driveFallback').style.display = 'none';
+  showToast('Song added! ✓', 'success');
+}
+
+function extractTitle(text) {
+  const first = text.split('\n').find(l => l.trim());
+  return first ? first.trim().slice(0, 60) : '';
+}
+function setLoading(on) {
+  document.getElementById('loadingIndicator').style.display = on ? 'block' : 'none';
+  document.getElementById('driveLoadBtn').disabled = on;
+}
+
+// ── Auto-scroll ───────────────────────────────────────────────
+function toggleScroll() {
+  scrolling = !scrolling;
+  const btn = document.getElementById('scrollBtn');
+  const bar = document.getElementById('scrollBar');
+  if (scrolling) {
+    btn.textContent = '⏸ Auto'; btn.classList.add('active'); bar.classList.add('visible');
+    startScrolling();
+  } else {
+    btn.textContent = '▶ Auto'; btn.classList.remove('active'); bar.classList.remove('visible');
+    cancelAnimationFrame(scrollRAF);
+  }
+}
+
+function startScrolling() {
+  cancelAnimationFrame(scrollRAF);
+  const viewer = document.getElementById('viewer');
+  let last = null;
+  let accumulated = 0; // float accumulator so sub-pixel amounts don't get lost
+  function step(ts) {
+    if (!scrolling) return;
+    if (last !== null) {
+      const delta = ts - last;
+      // speed 1–20 → 20–400 px/sec. Accumulate fractional pixels.
+      accumulated += (scrollSpeed * 20 * delta) / 1000;
+      const whole = Math.floor(accumulated);
+      if (whole >= 1) {
+        viewer.scrollTop += whole;
+        accumulated -= whole;
+      }
+      if (viewer.scrollTop + viewer.clientHeight >= viewer.scrollHeight - 4) {
+        toggleScroll(); return;
+      }
+    }
+    last = ts;
+    scrollRAF = requestAnimationFrame(step);
+  }
+  scrollRAF = requestAnimationFrame(step);
+}
+
+function updateScrollSpeed() {
+  scrollSpeed = parseInt(document.getElementById('scrollSpeed').value);
+  document.getElementById('speedLabel').textContent = scrollSpeed + '×';
+  document.getElementById('scrollLabel').textContent = `Auto-scrolling… (${scrollSpeed}×)`;
+  if (scrolling) startScrolling();
+  saveCurrentSettings();
+}
+
+// ── Font size ─────────────────────────────────────────────────
+function changeFontSize(delta) {
+  fontSize = Math.max(11, Math.min(28, fontSize + delta));
+  document.getElementById('viewer').style.fontSize = fontSize + 'px';
+  saveCurrentSettings();
+}
+
+// ── UI ────────────────────────────────────────────────────────
+function switchTab(name) {
+  ['library','drive','manual'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+    document.getElementById('panel-' + t).classList.toggle('active', t === name);
+  });
+}
+let toastTimer;
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === ' ')                   { e.preventDefault(); toggleScroll(); }
+  if (e.key === 'ArrowUp'   && e.shiftKey) transpose(-1);
+  if (e.key === 'ArrowDown' && e.shiftKey) transpose(+1);
+  if (e.key === 'r' || e.key === 'R')  resetTranspose();
+});
+
+
+// ── Save / Load Library ───────────────────────────────────────
+function saveLibraryAsFile() {
+  if (songs.length === 0) { showToast('No songs to save!', 'error'); return; }
+  const html = document.documentElement.outerHTML;
+  const songsJson = JSON.stringify(songs, null, 2);
+  const START = '// @@FRETBOARD_SONGS_START@@';
+  const END   = '// @@FRETBOARD_SONGS_END@@';
+  const si = html.indexOf(START), ei = html.indexOf(END);
+  if (si === -1 || ei === -1) { showToast('Save point not found — try reloading the app', 'error'); return; }
+  const saved = html.slice(0, si) +
+    `${START}\n  songs = ${songsJson};\n  saveSongs();\n  ` +
+    html.slice(ei);
+  const blob = new Blob([saved], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'fretboard-library.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast(`Library saved! ${songs.length} song${songs.length > 1 ? 's' : ''} baked in ✓`, 'success');
+}
+
+function loadLibraryFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const text = e.target.result;
+      // Use our markers to reliably extract the songs JSON
+      const START = '// @@FRETBOARD_SONGS_START@@';
+      const si = text.indexOf(START);
+      if (si === -1) throw new Error('No song library found in this file');
+      const block = text.slice(si + START.length);
+      const arrStart = block.indexOf('[');
+      const arrEnd = block.indexOf('];', arrStart);
+      if (arrStart === -1 || arrEnd === -1) throw new Error('Could not locate song data');
+      const imported = JSON.parse(block.slice(arrStart, arrEnd + 1));
+      if (!Array.isArray(imported)) throw new Error('Invalid library format');
+      // Merge: add songs that aren't already in library (by title)
+      const existingTitles = new Set(songs.map(s => s.title.toLowerCase()));
+      const newSongs = imported.filter(s => !existingTitles.has(s.title.toLowerCase()));
+      songs = [...newSongs, ...songs];
+      saveSongs();
+      renderSongList();
+      showToast(`Loaded ${newSongs.length} new song${newSongs.length !== 1 ? 's' : ''}${imported.length - newSongs.length > 0 ? ` (${imported.length - newSongs.length} already existed)` : ''} ✓`, 'success');
+    } catch(err) {
+      showToast('Could not read library file: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ── Event delegation for song list ───────────────────────────
+document.getElementById('songList').addEventListener('click', function(e) {
+  const delBtn = e.target.closest('[data-del]');
+  if (delBtn) { deleteSong(e, delBtn.dataset.del); return; }
+  const item = e.target.closest('[data-id]');
+  if (item) selectSong(item.dataset.id);
+});
+
+// ── Init (async to support window.storage) ────────────────────
+async function init() {
+  const stored = await loadSongs();
+  if (stored) {
+    songs = stored;
+  }
+  // @@FRETBOARD_SONGS_START@@
+  if (songs.length === 0) {
+    songs = [
+      {
+        id: 'demo1', title: 'Amazing Grace', key: 'G',
+        content: `[Verse 1]\nG        G7       C    G\nAmazing grace how sweet the sound\nG          G7         D\nThat saved a wretch like me\nG        G7      C      G\nI once was lost but now am found\nG      D7       G\nWas blind but now I see\n\n[Verse 2]\nG          G7        C      G\nTwas grace that taught my heart to fear\nG         G7       D\nAnd grace my fears relieved\nG        G7       C      G\nHow precious did that grace appear\nG      D7     G\nThe hour I first believed`,
+        source: null
+      },
+      {
+        id: 'demo2', title: "Knockin' on Heaven's Door", key: 'G',
+        content: `[Verse]\nG        D         Am\nMama take this badge off of me\nG        D             C\nI can't use it anymore\nG          D           Am\nIt's getting dark too dark to see\nG        D          C\nI feel I'm knocking on heaven's door\n\n[Chorus]\nG           D            C\nKnock knock knocking on heaven's door\nG           D            C\nKnock knock knocking on heaven's door`,
+        source: null
+      }
+    ];
+    saveSongs();
+  }
+  // @@FRETBOARD_SONGS_END@@
+  renderSongList();
+}
+init();
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  try{
+    const b=new Blob(["const CACHE='matts-tool-v1';\nself.addEventListener('install',e=>{self.skipWaiting();});\nself.addEventListener('activate',e=>{self.clients.claim();});\nself.addEventListener('fetch',e=>{\n  e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).then(res=>{\n    if(res.ok){const clone=res.clone();caches.open(CACHE).then(cache=>cache.put(e.request,clone));}\n    return res;\n  }).catch(()=>caches.match(e.request))));\n});"],{type:'text/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(b)).catch(()=>{});
+  }catch(e){}
+}
+</script>
+
+<div id="iosPrompt" style="display:none;position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%);background:#2C2C2C;border:1px solid #D4A017;
+  border-radius:12px;padding:16px 20px;font-family:'JetBrains Mono',monospace;
+  font-size:0.72rem;color:#F5F0E8;max-width:290px;text-align:center;
+  z-index:9999;box-shadow:0 4px 24px rgba(0,0,0,0.6)">
+  <div style="font-size:1.4rem;margin-bottom:8px">📱</div>
+  <div style="margin-bottom:4px;font-weight:bold;color:#D4A017">Install Matt's Tool</div>
+  <div style="color:#aaa;line-height:1.6">
+    Tap <b style="color:#fff">&#x2B06; Share</b> then<br>
+    <b style="color:#fff">Add to Home Screen</b>
+  </div>
+  <button id="iosPromptDismiss" style="margin-top:12px;background:none;
+    border:1px solid #444;border-radius:6px;color:#888;padding:5px 16px;
+    cursor:pointer;font-size:0.68rem;font-family:inherit">Got it</button>
+</div>
+<script>
+(function(){
+  var isIos=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isStandalone=window.navigator.standalone===true;
+  if(isIos&&!isStandalone&&!localStorage.getItem('iosDismissed')){
+    setTimeout(function(){document.getElementById('iosPrompt').style.display='block';},2500);
+  }
+  document.getElementById('iosPromptDismiss').addEventListener('click',function(){
+    document.getElementById('iosPrompt').style.display='none';
+    localStorage.setItem('iosDismissed','1');
+  });
+})();
+</script>
+
+</body>
+</html>
