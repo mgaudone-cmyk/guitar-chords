@@ -457,6 +457,28 @@
 </main>
 
 
+
+<!-- Share to Community modal -->
+<div class="modal-overlay" id="shareModal">
+  <div class="modal-box" style="min-width:320px;max-width:480px">
+    <div class="modal-msg">
+      <div style="font-weight:bold;color:var(--amber);margin-bottom:8px">🌐 Share to Community</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:10px">
+        This song is too long to auto-fill. Copy the content below, then paste it into GitHub.
+      </div>
+      <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:6px">
+        Filename: <strong style="color:var(--text)" id="shareFilename"></strong>
+      </div>
+      <textarea id="shareContent" readonly style="width:100%;height:140px;background:#111;border:1px solid var(--border);color:var(--text);font-family:monospace;font-size:0.7rem;padding:8px;border-radius:4px;resize:none;box-sizing:border-box"></textarea>
+    </div>
+    <div class="modal-btns" style="flex-wrap:wrap;gap:6px">
+      <button onclick="closeShareModal()" style="border-color:var(--border)">Cancel</button>
+      <button onclick="copyShareContent()" style="border-color:var(--amber);color:var(--amber)">📋 Copy</button>
+      <button onclick="openGithubNew()" style="border-color:var(--amber);color:var(--amber)">Open GitHub ↗</button>
+    </div>
+  </div>
+</div>
+
 <!-- Confirm modal (replaces confirm() which is blocked in sandboxed iframes) -->
 <div class="modal-overlay" id="confirmModal">
   <div class="modal-box">
@@ -563,6 +585,9 @@ function renderCurrentSong() {
     html += `<span>🔀 ${transposeSteps > 0 ? '+' : ''}${transposeSteps} semitones</span>`;
   if (currentSong.source)
     html += `<span>☁ <a href="${esc(currentSong.source)}" target="_blank" style="color:var(--amber-dim)">View source</a></span>`;
+  html += `<span style="margin-left:auto">
+    <button onclick="shareToCommunity()" style="font-size:0.65rem;padding:3px 8px;border-color:var(--border);color:var(--text-muted);background:none" title="Share this song to the community library">🌐 Share to Community</button>
+  </span>`;
   html += `</div></div><div class="chord-sheet">`;
 
   let i = 0;
@@ -1171,6 +1196,51 @@ function searchUG() {
 // Auto-load community list when tab is opened
 const _origSwitchTab = switchTab;
 // Wrap switchTab to trigger community load on first open
+
+
+// ── Share to Community ────────────────────────────────────────────
+function shareToCommunity() {
+  if (!currentSong) return;
+
+  // Build a clean filename: Title_Artist.txt using the song title
+  const filename = currentSong.title
+    .replace(/[^a-zA-Z0-9 ]/g, '')
+    .trim()
+    .replace(/\s+/g, '_') + '.txt';
+
+  const content = currentSong.title + '\n' + currentSong.content;
+
+  // GitHub pre-fills the new file form when you pass filename + value in the URL
+  const base = 'https://github.com/mgaudone-cmyk/guitar-chords-library/new/main/songs';
+  const params = new URLSearchParams({ filename, value: content });
+  const url = base + '?' + params.toString();
+
+  if (url.length > 15000) {
+    // Song too long for URL - show copy modal instead
+    showShareModal(filename, content);
+    return;
+  }
+
+  window.open(url, '_blank');
+  showToast('GitHub opened — review and click Commit new file ✓', 'success');
+}
+
+function showShareModal(filename, content) {
+  document.getElementById('shareFilename').textContent = filename;
+  document.getElementById('shareContent').value = content;
+  document.getElementById('shareModal').classList.add('visible');
+}
+function closeShareModal() {
+  document.getElementById('shareModal').classList.remove('visible');
+}
+function copyShareContent() {
+  navigator.clipboard.writeText(document.getElementById('shareContent').value)
+    .then(() => showToast('Copied! Now paste into GitHub ✓', 'success'))
+    .catch(() => { document.getElementById('shareContent').select(); document.execCommand('copy'); showToast('Copied!', 'success'); });
+}
+function openGithubNew() {
+  window.open('https://github.com/mgaudone-cmyk/guitar-chords-library/new/main/songs', '_blank');
+}
 
 // ── Event delegation for song list ───────────────────────────
 document.getElementById('songList').addEventListener('click', function(e) {
