@@ -359,6 +359,7 @@
       <button class="tab-btn active" onclick="switchTab('library')" id="tab-library">📁 Library</button>
       <button class="tab-btn" onclick="switchTab('drive')" id="tab-drive">☁ Drive</button>
       <button class="tab-btn" onclick="switchTab('manual')" id="tab-manual">✏ Manual</button>
+      <button class="tab-btn" onclick="switchTab('community')" id="tab-community">🌐 Community</button>
     </div>
 
     <!-- LIBRARY -->
@@ -413,6 +414,36 @@
         <button class="sb-btn" onclick="document.getElementById('fileInput').click()">📂 Open .txt / .docx / .rtf…</button>
       </div>
     </div>
+    <!-- COMMUNITY LIBRARY -->
+    <div class="tab-panel" id="panel-community" style="overflow-y:auto;display:flex;flex-direction:column">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Community Songs</div>
+        <div class="drive-hint">Songs shared by the community. Browse, load into your library, or
+          <a href="https://github.com/mgaudone-cmyk/guitar-chords-library"
+             target="_blank" style="color:var(--amber)">contribute a song ↗</a>
+        </div>
+        <div class="sb-row" style="gap:6px">
+          <input class="sb-input" type="text" id="communitySearch"
+                 placeholder="Search community songs…" oninput="filterCommunity()" style="margin-bottom:0">
+          <button onclick="loadCommunityList()" title="Refresh list" style="flex-shrink:0">↻</button>
+        </div>
+      </div>
+      <div id="communityList" style="flex:1;overflow-y:auto">
+        <div style="padding:20px;font-size:0.72rem;color:var(--text-muted);font-family:monospace;text-align:center">
+          Click the Community tab to load songs
+        </div>
+      </div>
+      <div class="sidebar-section" style="border-top:1px solid var(--border);padding-top:10px;flex-shrink:0">
+        <div style="font-size:0.7rem;font-weight:bold;color:var(--amber);margin-bottom:6px">🔍 Search Ultimate Guitar</div>
+        <div class="sb-row">
+          <input class="sb-input" type="text" id="ugSearch" placeholder="Artist or song…"
+                 style="margin-bottom:0" onkeydown="if(event.key==='Enter')searchUG()">
+          <button onclick="searchUG()" style="flex-shrink:0">Search</button>
+        </div>
+        <div class="drive-hint" style="margin-top:6px">Opens in new tab. Copy the chord sheet and paste it in Manual tab.</div>
+      </div>
+    </div>
+
   </aside>
 
   <div id="viewer">
@@ -447,6 +478,7 @@
 const NOTES      = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const NOTES_FLAT = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 
+let communityLoaded = false;
 let songs        = JSON.parse(localStorage.getItem('fretboard_songs') || '[]');
 let currentSong  = null;
 let transposeSteps = 0;
@@ -595,7 +627,7 @@ function renderSongList() {
   const list = document.getElementById('songList');
   const filt = songs.filter(s => s.title.toLowerCase().includes(q));
   if (!filt.length) {
-    list.innerHTML = `<div style="padding:20px;font-size:0.72rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;text-align:center">No songs yet.<br>Add one from Manual or Drive.</div>`;
+    list.innerHTML = `<div style="padding:20px;font-size:0.72rem;color:var(--text-muted);font-family:monospace;text-align:center">No songs yet.<br>Add one from Manual or Drive.</div>`;
     return;
   }
   list.innerHTML = filt.map(s => `
@@ -979,10 +1011,16 @@ function changeFontSize(delta) {
 
 // ── UI ────────────────────────────────────────────────────────
 function switchTab(name) {
-  ['library','drive','manual'].forEach(t => {
-    document.getElementById('tab-' + t).classList.toggle('active', t === name);
-    document.getElementById('panel-' + t).classList.toggle('active', t === name);
+  ['library','drive','manual','community'].forEach(t => {
+    const btn   = document.getElementById('tab-' + t);
+    const panel = document.getElementById('panel-' + t);
+    if (btn)   btn.classList.toggle('active', t === name);
+    if (panel) panel.classList.toggle('active', t === name);
   });
+  if (name === 'community' && !communityLoaded) {
+    communityLoaded = true;
+    loadCommunityList();
+  }
 }
 let toastTimer;
 function showToast(msg, type) {
@@ -1056,6 +1094,84 @@ function loadLibraryFile(event) {
   event.target.value = '';
 }
 
+
+// ── Community Library ─────────────────────────────────────────────
+const COMMUNITY_REPO = 'mgaudone-cmyk/guitar-chords-library';
+const COMMUNITY_API  = `https://api.github.com/repos/${COMMUNITY_REPO}/contents/songs`;
+let communityFiles = [];
+
+async function loadCommunityList() {
+  const listEl = document.getElementById('communityList');
+  listEl.innerHTML = '<div style="padding:20px;font-size:0.72rem;color:var(--text-muted);text-align:center;font-family:monospace">Loading…</div>';
+  try {
+    const res = await fetch(COMMUNITY_API);
+    if (!res.ok) throw new Error('Could not reach community library');
+    const files = await res.json();
+    communityFiles = files
+      .filter(f => f.name.endsWith('.txt') || f.name.endsWith('.cho'))
+      .map(f => ({
+        name: f.name.replace(/\.(txt|cho)$/, '').replace(/_/g, ' '),
+        url: f.download_url,
+        raw: f.name
+      }));
+    renderCommunityList(communityFiles);
+  } catch(err) {
+    listEl.innerHTML = `<div style="padding:20px;font-size:0.72rem;color:var(--red);text-align:center;font-family:monospace">
+      Could not load community songs.<br><br>
+      <a href="https://github.com/${COMMUNITY_REPO}" target="_blank" style="color:var(--amber)">Open library on GitHub ↗</a>
+    </div>`;
+  }
+}
+
+function renderCommunityList(files) {
+  const listEl = document.getElementById('communityList');
+  if (!files.length) {
+    listEl.innerHTML = '<div style="padding:20px;font-size:0.72rem;color:var(--text-muted);text-align:center;font-family:monospace">No songs found.</div>';
+    return;
+  }
+  listEl.innerHTML = files.map(f => `
+    <div class="song-item" style="cursor:pointer" onclick="loadCommunitySong('${encodeURIComponent(f.url)}','${encodeURIComponent(f.name)}')">
+      <span class="song-item-icon">🌐</span>
+      <div class="song-item-info">
+        <div class="song-item-name">${esc(f.name)}</div>
+        <div class="song-item-key">Community</div>
+      </div>
+      <span style="font-size:0.7rem;color:var(--text-muted);padding-right:6px" title="Add to library">＋</span>
+    </div>`).join('');
+}
+
+function filterCommunity() {
+  const q = document.getElementById('communitySearch').value.toLowerCase();
+  renderCommunityList(q ? communityFiles.filter(f => f.name.toLowerCase().includes(q)) : communityFiles);
+}
+
+async function loadCommunitySong(encodedUrl, encodedName) {
+  const url  = decodeURIComponent(encodedUrl);
+  const name = decodeURIComponent(encodedName);
+  try {
+    showToast('Loading…', 'success');
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Could not fetch song');
+    const text = cleanText(await res.text());
+    const song = { id: Date.now().toString(), title: name, key: detectKey(text), content: text, source: url };
+    songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+    switchTab('library');
+    showToast(`"${name}" added to your library ✓`, 'success');
+  } catch(err) {
+    showToast('Could not load song: ' + err.message, 'error');
+  }
+}
+
+function searchUG() {
+  const q = document.getElementById('ugSearch').value.trim();
+  if (!q) return;
+  window.open(`https://www.ultimate-guitar.com/search.php?search_type=title&value=${encodeURIComponent(q)}`, '_blank');
+}
+
+// Auto-load community list when tab is opened
+const _origSwitchTab = switchTab;
+// Wrap switchTab to trigger community load on first open
+
 // ── Event delegation for song list ───────────────────────────
 document.getElementById('songList').addEventListener('click', function(e) {
   const delBtn = e.target.closest('[data-del]');
@@ -1103,7 +1219,7 @@ if('serviceWorker' in navigator){
 
 <div id="iosPrompt" style="display:none;position:fixed;bottom:24px;left:50%;
   transform:translateX(-50%);background:#2C2C2C;border:1px solid #D4A017;
-  border-radius:12px;padding:16px 20px;font-family:'JetBrains Mono',monospace;
+  border-radius:12px;padding:16px 20px;font-family:monospace;
   font-size:0.72rem;color:#F5F0E8;max-width:290px;text-align:center;
   z-index:9999;box-shadow:0 4px 24px rgba(0,0,0,0.6)">
   <div style="font-size:1.4rem;margin-bottom:8px">📱</div>
