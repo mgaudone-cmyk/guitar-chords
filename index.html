@@ -350,20 +350,24 @@
   </div>
 
   <div class="spacer"></div>
+  <div id="syncIndicator" style="display:none;font-size:0.7rem;color:var(--text-muted);font-family:monospace;margin-right:8px">
+    <span id="syncText">⟳ Syncing…</span>
+  </div>
+  <button onclick="openSettings()" title="Settings" style="background:none;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer;padding:4px 8px">⚙</button>
   <div id="loadingIndicator" style="display:none"><div class="loading"></div></div>
 </header>
 
 <main>
   <aside>
     <div class="tab-bar">
-      <button class="tab-btn active" onclick="switchTab('library')" id="tab-library">📁 Library</button>
+      <button class="tab-btn" onclick="switchTab('library')" id="tab-library">📁 Library</button>
       <button class="tab-btn" onclick="switchTab('drive')" id="tab-drive">☁ Drive</button>
       <button class="tab-btn" onclick="switchTab('manual')" id="tab-manual">✏ Manual</button>
-      <button class="tab-btn" onclick="switchTab('community')" id="tab-community">🌐 Community</button>
+      <button class="tab-btn active" onclick="switchTab('community')" id="tab-community">🌐 Community</button>
     </div>
 
     <!-- LIBRARY -->
-    <div class="tab-panel active" id="panel-library">
+    <div class="tab-panel" id="panel-library">
       <div class="sidebar-section">
         <div class="sidebar-title">Your Songs</div>
         <input class="sb-input" type="text" id="searchInput" placeholder="Search songs…" oninput="renderSongList()" style="margin-bottom:0">
@@ -415,7 +419,7 @@
       </div>
     </div>
     <!-- COMMUNITY LIBRARY -->
-    <div class="tab-panel" id="panel-community" style="overflow-y:auto;display:flex;flex-direction:column">
+    <div class="tab-panel active" id="panel-community" style="overflow-y:auto;display:flex;flex-direction:column">
       <div class="sidebar-section">
         <div class="sidebar-title">Community Songs</div>
         <div class="drive-hint">Songs shared by the community. Browse, load into your library, or
@@ -457,6 +461,38 @@
 </main>
 
 
+
+
+<!-- Settings modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-box" style="min-width:340px;max-width:500px">
+    <div style="font-size:1rem;font-weight:bold;color:var(--amber);margin-bottom:16px">⚙ Settings</div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:0.75rem;font-weight:bold;color:var(--text);margin-bottom:6px">GitHub Auto-Sync</div>
+      <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.6;margin-bottom:10px">
+        When set, songs you add are automatically saved to your community library on GitHub so your friends can see them.<br><br>
+        <a href="https://github.com/settings/tokens/new?description=MattsToolSync&scopes=repo"
+           target="_blank" style="color:var(--amber)">Click here to generate a GitHub token ↗</a><br>
+        <span style="font-size:0.68rem">Select "repo" scope when creating the token.</span>
+      </div>
+      <input class="sb-input" type="password" id="ghTokenInput"
+             placeholder="Paste your GitHub token here…"
+             style="margin-bottom:6px;font-family:monospace">
+      <div style="font-size:0.68rem;color:var(--text-muted)">
+        🔒 Stored only on this device. Never shared anywhere except GitHub.
+      </div>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:0.75rem;font-weight:bold;color:var(--text);margin-bottom:6px">Sync Status</div>
+      <div id="syncStatus" style="font-size:0.72rem;color:var(--text-muted)">No token set — auto-sync disabled.</div>
+    </div>
+    <div class="modal-btns">
+      <button onclick="closeSettings()" style="border-color:var(--border)">Cancel</button>
+      <button onclick="clearGhToken()" style="border-color:var(--border);color:var(--text-muted)">Clear Token</button>
+      <button onclick="saveGhToken()" style="border-color:var(--amber);color:var(--amber)">Save Token</button>
+    </div>
+  </div>
+</div>
 
 <!-- Share to Community modal -->
 <div class="modal-overlay" id="shareModal">
@@ -701,8 +737,10 @@ async function deleteSong(e, id) {
   e.stopPropagation();
   const ok = await showConfirm('Remove this song from your library?');
   if (!ok) return;
+  const deletedSong = songs.find(s => s.id === id);
   songs = songs.filter(s => s.id !== id);
   saveSongs();
+  if (deletedSong) deleteSongFromGitHub(deletedSong);
   if (currentSong?.id === id) {
     currentSong = null;
     document.getElementById('emptyState').style.display = '';
@@ -718,6 +756,7 @@ function addManualSong() {
   if (!content.trim()) { showToast('Please enter some content', 'error'); return; }
   const song = { id: Date.now().toString(), title, key, content: cleanText(content), source: null };
   songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+    pushSongToGitHub(song);
   document.getElementById('manTitle').value = '';
   document.getElementById('manKey').value = '';
   document.getElementById('manContent').value = '';
@@ -795,6 +834,7 @@ async function loadFile(event) {
     if (!text.trim()) throw new Error('No text content found in file');
     const song = { id: Date.now().toString(), title, key: detectKey(text), content: text, source: null };
     songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+    pushSongToGitHub(song);
     showToast('File loaded! ✓', 'success');
   } catch(err) {
     showToast('Could not read file: ' + err.message, 'error');
@@ -941,6 +981,7 @@ async function loadFromDrive() {
       const title = titleInput || extractTitle(text) || 'Untitled Song';
       const song  = { id: Date.now().toString(), title, key: keyInput || detectKey(text), content: cleanText(text), source: url };
       songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+    pushSongToGitHub(song);
       document.getElementById('driveUrl').value = '';
       document.getElementById('driveSongTitle').value = '';
       document.getElementById('driveKey').value = '';
@@ -965,6 +1006,7 @@ function loadFromPaste() {
   const title = titleInput || extractTitle(content) || 'Untitled Song';
   const song  = { id: Date.now().toString(), title, key: keyInput || detectKey(content), content: cleanText(content), source: url || null };
   songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+    pushSongToGitHub(song);
   ['drivePasteArea','driveUrl','driveSongTitle','driveKey'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('driveFallback').style.display = 'none';
   showToast('Song added! ✓', 'success');
@@ -1120,6 +1162,151 @@ function loadLibraryFile(event) {
 }
 
 
+
+// ── GitHub Auto-Sync ──────────────────────────────────────────────
+const GH_OWNER  = 'mgaudone-cmyk';
+const GH_REPO   = 'guitar-chords-library';
+const GH_BRANCH = 'main';
+const GH_FOLDER = 'guitar-chords-library/songs';
+
+function getGhToken() {
+  try { return localStorage.getItem('gh_token') || ''; } catch(e) { return ''; }
+}
+
+function openSettings() {
+  const token = getGhToken();
+  document.getElementById('ghTokenInput').value = token;
+  updateSyncStatus();
+  document.getElementById('settingsModal').classList.add('visible');
+}
+function closeSettings() {
+  document.getElementById('settingsModal').classList.remove('visible');
+}
+function saveGhToken() {
+  const token = document.getElementById('ghTokenInput').value.trim();
+  try { localStorage.setItem('gh_token', token); } catch(e) {}
+  updateSyncStatus();
+  closeSettings();
+  if (token) showToast('GitHub token saved — auto-sync enabled ✓', 'success');
+  else showToast('Token cleared — auto-sync disabled', 'success');
+}
+function clearGhToken() {
+  document.getElementById('ghTokenInput').value = '';
+  try { localStorage.removeItem('gh_token'); } catch(e) {}
+  updateSyncStatus();
+  showToast('Token cleared', 'success');
+}
+function updateSyncStatus() {
+  const token = getGhToken();
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+  el.textContent = token
+    ? '✓ Token set — songs will auto-sync to GitHub when you add them.'
+    : 'No token set — auto-sync disabled.';
+  el.style.color = token ? 'var(--green, #4caf50)' : 'var(--text-muted)';
+}
+
+function songToFilename(title) {
+  return title.replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/\s+/g, '_') + '.txt';
+}
+
+function songToContent(song) {
+  // Build a clean text file: title on first line, then content
+  const lines = [song.title];
+  if (song.key) lines.push('Key: ' + song.key);
+  lines.push('');
+  lines.push(song.content);
+  return lines.join('\n');
+}
+
+async function pushSongToGitHub(song) {
+  const token = getGhToken();
+  if (!token) return; // silent — no token means sync disabled
+
+  const filename = songToFilename(song.title);
+  const path     = GH_FOLDER + '/' + filename;
+  const apiUrl   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`;
+  const content  = btoa(unescape(encodeURIComponent(songToContent(song))));
+
+  // Show sync indicator
+  const ind = document.getElementById('syncIndicator');
+  const txt = document.getElementById('syncText');
+  if (ind) { ind.style.display = ''; txt.textContent = '⟳ Syncing…'; }
+
+  try {
+    // Check if file already exists (need sha to update)
+    let sha = null;
+    const check = await fetch(apiUrl, {
+      headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }
+    });
+    if (check.ok) {
+      const existing = await check.json();
+      sha = existing.sha;
+    }
+
+    // Create or update the file
+    const body = {
+      message: sha ? `Update ${filename}` : `Add ${filename}`,
+      content,
+      branch: GH_BRANCH,
+    };
+    if (sha) body.sha = sha;
+
+    const res = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        Authorization: 'Bearer ' + token,
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (res.ok) {
+      if (txt) txt.textContent = '✓ Synced';
+      setTimeout(() => { if (ind) ind.style.display = 'none'; }, 2000);
+      // Reload community list so friends see the new song
+      communityLoaded = false;
+    } else {
+      const err = await res.json();
+      console.warn('GitHub sync failed:', err.message);
+      if (txt) txt.textContent = '⚠ Sync failed';
+      setTimeout(() => { if (ind) ind.style.display = 'none'; }, 3000);
+    }
+  } catch(e) {
+    console.warn('GitHub sync error:', e);
+    if (ind) ind.style.display = 'none';
+  }
+}
+
+async function deleteSongFromGitHub(song) {
+  const token = getGhToken();
+  if (!token) return;
+  const filename = songToFilename(song.title);
+  const path     = GH_FOLDER + '/' + filename;
+  const apiUrl   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`;
+  try {
+    const check = await fetch(apiUrl, {
+      headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }
+    });
+    if (!check.ok) return;
+    const existing = await check.json();
+    await fetch(apiUrl, {
+      method: 'DELETE',
+      headers: {
+        Authorization: 'Bearer ' + token,
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: `Remove ${filename}`,
+        sha: existing.sha,
+        branch: GH_BRANCH,
+      }),
+    });
+  } catch(e) { /* silent */ }
+}
+
 // ── Community Library ─────────────────────────────────────────────
 const COMMUNITY_REPO = 'mgaudone-cmyk/guitar-chords-library';
 const COMMUNITY_API  = `https://api.github.com/repos/${COMMUNITY_REPO}/contents/guitar-chords-library/songs`;
@@ -1180,6 +1367,7 @@ async function loadCommunitySong(encodedUrl, encodedName) {
     const text = cleanText(await res.text());
     const song = { id: Date.now().toString(), title: name, key: detectKey(text), content: text, source: url };
     songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+    pushSongToGitHub(song);
     switchTab('library');
     showToast(`"${name}" added to your library ✓`, 'success');
   } catch(err) {
@@ -1274,6 +1462,10 @@ async function init() {
   }
   // @@FRETBOARD_SONGS_END@@
   renderSongList();
+  // Load community tab by default
+  communityLoaded = true;
+  loadCommunityList();
+  updateSyncStatus();
 }
 init();
 </script>
