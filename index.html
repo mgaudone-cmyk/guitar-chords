@@ -1003,7 +1003,7 @@ function startScrolling() {
     if (last !== null) {
       const delta = ts - last;
       // speed 1–20 → 20–400 px/sec. Accumulate fractional pixels.
-      accumulated += (scrollSpeed * 20 * delta) / 1000;
+      accumulated += (scrollSpeed * 16 * delta) / 1000;
       const whole = Math.floor(accumulated);
       if (whole >= 1) {
         viewer.scrollTop += whole;
