@@ -154,7 +154,8 @@
     min-height: 0;
   }
 
-  .tab-bar { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .tab-bar { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-x: auto; }
+  .tab-btn { white-space: nowrap; flex-shrink: 0; }
   .tab-btn {
     flex: 1; padding: 10px;
     border: none; border-radius: 0;
@@ -313,8 +314,9 @@
   .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
 
   @media (max-width: 700px) {
-    main { grid-template-columns: 1fr; grid-template-rows: 260px 1fr; }
-    #viewer { padding: 24px 20px; }
+    main { grid-template-columns: 1fr; grid-template-rows: 300px 1fr; }
+    #viewer { padding: 16px 14px; }
+    .tab-btn { font-size: 0.58rem; padding: 10px 8px; }
   }
 </style>
 </head>
@@ -1329,8 +1331,9 @@ async function loadCommunityList() {
     renderCommunityList(communityFiles);
   } catch(err) {
     listEl.innerHTML = `<div style="padding:20px;font-size:0.72rem;color:var(--red);text-align:center;font-family:monospace">
-      Could not load community songs.<br><br>
-      <a href="https://github.com/${COMMUNITY_REPO}" target="_blank" style="color:var(--amber)">Open library on GitHub ↗</a>
+      Could not load songs.<br>Check your internet connection.<br><br>
+      <button onclick="loadCommunityList()" style="margin-top:6px;font-size:0.7rem;padding:6px 12px">↻ Try Again</button><br><br>
+      <a href="https://github.com/${COMMUNITY_REPO}" target="_blank" style="color:var(--amber)">Open on GitHub ↗</a>
     </div>`;
   }
 }
