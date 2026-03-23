@@ -496,23 +496,21 @@
   </div>
 </div>
 
-<!-- Share to Community modal -->
-<div class="modal-overlay" id="shareModal">
-  <div class="modal-box" style="min-width:320px;max-width:480px">
+<!-- Name prompt for community sharing -->
+<div class="modal-overlay" id="nameModal">
+  <div class="modal-box">
     <div class="modal-msg">
       <div style="font-weight:bold;color:var(--amber);margin-bottom:8px">🌐 Share to Community</div>
-      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:10px">
-        This song is too long to auto-fill. Copy the content below, then paste it into GitHub.
-      </div>
-      <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:6px">
-        Filename: <strong style="color:var(--text)" id="shareFilename"></strong>
-      </div>
-      <textarea id="shareContent" readonly style="width:100%;height:140px;background:#111;border:1px solid var(--border);color:var(--text);font-family:monospace;font-size:0.7rem;padding:8px;border-radius:4px;resize:none;box-sizing:border-box"></textarea>
+      <div style="font-size:0.78rem;margin-bottom:12px">Your name (shown in the contribution log):</div>
+      <input id="contributorName" type="text" placeholder="e.g. Matt" maxlength="40"
+        style="width:100%;background:#111;border:1px solid var(--border);color:var(--text);
+               font-family:inherit;font-size:0.8rem;padding:8px 10px;border-radius:4px;
+               box-sizing:border-box;outline:none"
+        onkeydown="if(event.key==='Enter')resolveNamePrompt(true)">
     </div>
-    <div class="modal-btns" style="flex-wrap:wrap;gap:6px">
-      <button onclick="closeShareModal()" style="border-color:var(--border)">Cancel</button>
-      <button onclick="copyShareContent()" style="border-color:var(--amber);color:var(--amber)">📋 Copy</button>
-      <button onclick="openGithubNew()" style="border-color:var(--amber);color:var(--amber)">Open GitHub ↗</button>
+    <div class="modal-btns">
+      <button onclick="resolveNamePrompt(false)" style="border-color:var(--border)">Cancel</button>
+      <button onclick="resolveNamePrompt(true)" style="border-color:var(--amber);color:var(--amber)">Share ✓</button>
     </div>
   </div>
 </div>
@@ -1390,47 +1388,78 @@ const _origSwitchTab = switchTab;
 
 
 // ── Share to Community ────────────────────────────────────────────
-function shareToCommunity() {
+async function shareToCommunity() {
   if (!currentSong) return;
 
-  // Build a clean filename: Title_Artist.txt using the song title
+  // Ask for contributor name
+  const name = await showNamePrompt();
+  if (!name) return;
+
   const filename = currentSong.title
-    .replace(/[^a-zA-Z0-9 ]/g, '')
-    .trim()
+    .replace(/[^a-zA-Z0-9 ]/g, '').trim()
     .replace(/\s+/g, '_') + '.txt';
 
   const content = currentSong.title + '\n' + currentSong.content;
+  const encoded = btoa(unescape(encodeURIComponent(content)));
 
-  // GitHub pre-fills the new file form when you pass filename + value in the URL
-  const base = 'https://github.com/mgaudone-cmyk/guitar-chords-library/new/main/songs';
-  const params = new URLSearchParams({ filename, value: content });
-  const url = base + '?' + params.toString();
+  const apiUrl = `https://api.github.com/repos/mgaudone-cmyk/guitar-chords-library/contents/songs/${encodeURIComponent(filename)}`;
 
-  if (url.length > 15000) {
-    // Song too long for URL - show copy modal instead
-    showShareModal(filename, content);
-    return;
+  // Check if file already exists (need its SHA to update)
+  let sha = null;
+  try {
+    const check = await fetch(apiUrl, {
+      headers: { Authorization: 'token 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', Accept: 'application/vnd.github.v3+json' }
+    });
+    if (check.ok) {
+      const existing = await check.json();
+      sha = existing.sha;
+    }
+  } catch(e) {}
+
+  const body = {
+    message: `Add ${currentSong.title} — contributed by ${name}`,
+    content: encoded,
+    ...(sha ? { sha } : {})
+  };
+
+  try {
+    showToast('Sharing…', 'success');
+    const res = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        Authorization: 'token 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',
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (res.ok) {
+      showToast(`"${currentSong.title}" shared with the community ✓`, 'success');
+      communityLoaded = false; // force refresh next time community tab opens
+    } else {
+      const err = await res.json();
+      showToast('Could not share: ' + (err.message || res.status), 'error');
+    }
+  } catch(e) {
+    showToast('Could not share: ' + e.message, 'error');
   }
-
-  window.open(url, '_blank');
-  showToast('GitHub opened — review and click Commit new file ✓', 'success');
 }
 
-function showShareModal(filename, content) {
-  document.getElementById('shareFilename').textContent = filename;
-  document.getElementById('shareContent').value = content;
-  document.getElementById('shareModal').classList.add('visible');
+// Name prompt for community sharing
+let _nameResolve = null;
+function showNamePrompt() {
+  return new Promise(resolve => {
+    _nameResolve = resolve;
+    document.getElementById('nameModal').classList.add('visible');
+    document.getElementById('contributorName').value = '';
+    document.getElementById('contributorName').focus();
+  });
 }
-function closeShareModal() {
-  document.getElementById('shareModal').classList.remove('visible');
-}
-function copyShareContent() {
-  navigator.clipboard.writeText(document.getElementById('shareContent').value)
-    .then(() => showToast('Copied! Now paste into GitHub ✓', 'success'))
-    .catch(() => { document.getElementById('shareContent').select(); document.execCommand('copy'); showToast('Copied!', 'success'); });
-}
-function openGithubNew() {
-  window.open('https://github.com/mgaudone-cmyk/guitar-chords-library/new/main/songs', '_blank');
+function resolveNamePrompt(submit) {
+  const name = submit ? (document.getElementById('contributorName').value.trim() || 'Anonymous') : null;
+  document.getElementById('nameModal').classList.remove('visible');
+  if (_nameResolve) { _nameResolve(name); _nameResolve = null; }
 }
 
 // ── Event delegation for song list ───────────────────────────
