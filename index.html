@@ -1394,6 +1394,46 @@ async function loadCommunitySong(encodedUrl, encodedName) {
     let text;
     if (url.toLowerCase().endsWith('.docx')) {
       const buf = await res.arrayBuffer();
+      try {
+        text = await extractDocxText(buf);
+      } catch(e) {
+        // Not a valid docx — try reading as plain text fallback
+        text = new TextDecoder('utf-8', { fatal: false }).decode(buf);
+        // Strip binary/XML noise, keep only printable lines
+        text = text.split('\n')
+          .filter(l => l.trim() && /[a-zA-Z]/.test(l) && !/^[<{\[\x00-\x1f]/.test(l.trim()))
+          .join('\n');
+        if (!text.trim()) throw new Error('File could not be read. Ask the contributor to re-save as .docx from Word.');
+      }
+    } else {
+      text = await res.text();
+    }
+
+    text = cleanText(text);
+    const song = { id: Date.now().toString(), title: name, key: detectKey(text), content: text, source: url };
+    songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+    switchTab('library');
+    showToast('"' + name + '" added to your library ✓', 'success');
+  } catch(err) {
+    showToast('Could not load: ' + err.message, 'error');
+  }
+}
+function filterCommunity() {
+  const q = document.getElementById('communitySearch').value.toLowerCase();
+  renderCommunityList(q ? communityFiles.filter(f => f.name.toLowerCase().includes(q)) : communityFiles);
+}
+
+async function loadCommunitySong(encodedUrl, encodedName) {
+  const url  = decodeURIComponent(encodedUrl);
+  const name = decodeURIComponent(encodedName);
+  try {
+    showToast('Loading…', 'success');
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Could not fetch song');
+
+    let text;
+    if (url.toLowerCase().endsWith('.docx')) {
+      const buf = await res.arrayBuffer();
       text = await extractDocxText(buf);
     } else {
       text = await res.text();
@@ -1594,7 +1634,7 @@ if('serviceWorker' in navigator){
 </script>
 
 
-<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.03.25-2100</div>
+<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.03.25-2140</div>
 
 </body>
 </html>
