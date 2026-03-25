@@ -318,12 +318,33 @@
     #viewer { padding: 16px 14px; }
     .tab-btn { font-size: 0.58rem; padding: 10px 8px; }
   }
+
+  aside { transition: transform 0.25s ease, opacity 0.25s ease; }
+  aside.hidden { 
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: -1;
+  }
+  @media (max-width: 700px) {
+    aside.hidden { transform: translateY(-100%); }
+  }
+  #viewer.expanded { grid-column: 1 / -1; }
+  main.sidebar-hidden { grid-template-columns: 1fr; }
+  @media (max-width: 700px) {
+    main.sidebar-hidden { grid-template-rows: 0 1fr; }
+  }
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo">Matt's<span> Tool</span></div>
+  <button id="sidebarToggle" onclick="showSidebar()" title="Show library"
+    style="display:none;background:none;border:1px solid var(--border);border-radius:4px;
+           color:var(--text-muted);padding:4px 9px;font-size:0.85rem;cursor:pointer;
+           flex-shrink:0;margin-right:4px">☰</button>
   <div class="sep"></div>
 
   <div class="ctrl-group">
@@ -1028,6 +1049,7 @@ function toggleScroll() {
   const bar = document.getElementById('scrollBar');
   if (scrolling) {
     btn.textContent = '⏸ Auto'; btn.classList.add('active'); bar.classList.add('visible');
+    hideSidebar();
     startScrolling();
   } else {
     btn.textContent = '▶ Auto'; btn.classList.remove('active'); bar.classList.remove('visible');
@@ -1045,7 +1067,7 @@ function startScrolling() {
     if (last !== null) {
       const delta = ts - last;
       // speed 1–20 → 20–400 px/sec. Accumulate fractional pixels.
-      accumulated += (scrollSpeed * 16 * delta) / 1000;
+      accumulated += (scrollSpeed * 10 * delta) / 1000;
       const whole = Math.floor(accumulated);
       if (whole >= 1) {
         viewer.scrollTop += whole;
@@ -1462,6 +1484,35 @@ function resolveNamePrompt(submit) {
   if (_nameResolve) { _nameResolve(name); _nameResolve = null; }
 }
 
+
+// ── Sidebar show/hide ─────────────────────────────────────────────
+let sidebarVisible = true;
+
+function hideSidebar() {
+  if (!sidebarVisible) return;
+  sidebarVisible = false;
+  document.querySelector('aside').classList.add('hidden');
+  document.querySelector('main').classList.add('sidebar-hidden');
+  document.getElementById('viewer').classList.add('expanded');
+  document.getElementById('sidebarToggle').style.display = 'flex';
+}
+
+function showSidebar() {
+  if (sidebarVisible) return;
+  sidebarVisible = true;
+  document.querySelector('aside').classList.remove('hidden');
+  document.querySelector('main').classList.remove('sidebar-hidden');
+  document.getElementById('viewer').classList.remove('expanded');
+  document.getElementById('sidebarToggle').style.display = 'none';
+}
+
+// Tap on chord sheet hides sidebar
+document.getElementById('viewer').addEventListener('click', function(e) {
+  // Don't hide if clicking a link or button inside the viewer
+  if (e.target.closest('a, button')) return;
+  if (sidebarVisible) hideSidebar();
+});
+
 // ── Event delegation for song list ───────────────────────────
 document.getElementById('songList').addEventListener('click', function(e) {
   const delBtn = e.target.closest('[data-del]');
@@ -1539,6 +1590,11 @@ if('serviceWorker' in navigator){
   });
 })();
 </script>
+
+
+<div id="appVersion" style="position:fixed;bottom:4px;right:8px;font-size:0.55rem;
+  color:var(--text-muted);font-family:'JetBrains Mono',monospace;
+  opacity:0.4;pointer-events:none;z-index:10;letter-spacing:0.05em">v2026.03.25-1442</div>
 
 </body>
 </html>
