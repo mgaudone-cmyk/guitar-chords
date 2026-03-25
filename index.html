@@ -1331,7 +1331,7 @@ async function deleteSongFromGitHub(song) {
 
 // ── Community Library ─────────────────────────────────────────────
 const COMMUNITY_REPO = 'mgaudone-cmyk/guitar-chords-library';
-const COMMUNITY_API  = `https://api.github.com/repos/${COMMUNITY_REPO}/contents/songs`;
+const COMMUNITY_API  = `https://api.github.com/repos/${COMMUNITY_REPO}/contents/guitar-chords-library/songs`;
 let communityFiles = [];
 
 async function loadCommunityList() {
@@ -1436,7 +1436,7 @@ async function shareToCommunity() {
   const content = currentSong.title + '\n' + currentSong.content;
   const encoded = btoa(unescape(encodeURIComponent(content)));
 
-  const apiUrl = `https://api.github.com/repos/mgaudone-cmyk/guitar-chords-library/contents/songs/${encodeURIComponent(filename)}`;
+  const apiUrl = `https://api.github.com/repos/mgaudone-cmyk/guitar-chords-library/contents/guitar-chords-library/songs/${encodeURIComponent(filename)}`;
 
   // Check if file already exists (need its SHA to update)
   let sha = null;
@@ -1603,7 +1603,7 @@ if('serviceWorker' in navigator){
 
 <div id="appVersion" style="position:fixed;bottom:4px;right:8px;font-size:0.55rem;
   color:var(--text-muted);font-family:'JetBrains Mono',monospace;
-  opacity:0.4;pointer-events:none;z-index:10;letter-spacing:0.05em">v2026.03.25-1457</div>
+  opacity:0.4;pointer-events:none;z-index:10;letter-spacing:0.05em">v2026.03.25-1516</div>
 
 </body>
 </html>
