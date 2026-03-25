@@ -383,14 +383,14 @@
 <main>
   <aside>
     <div class="tab-bar">
-      <button class="tab-btn" onclick="switchTab('library')" id="tab-library">📁 Library</button>
+      <button class="tab-btn active" onclick="switchTab('library')" id="tab-library">📁 Library</button>
       <button class="tab-btn" onclick="switchTab('drive')" id="tab-drive">☁ Drive</button>
       <button class="tab-btn" onclick="switchTab('manual')" id="tab-manual">✏ Manual</button>
-      <button class="tab-btn active" onclick="switchTab('community')" id="tab-community">🌐 Community</button>
+      <button class="tab-btn" onclick="switchTab('community')" id="tab-community">🌐 Community</button>
     </div>
 
     <!-- LIBRARY -->
-    <div class="tab-panel" id="panel-library">
+    <div class="tab-panel active" id="panel-library">
       <div class="sidebar-section">
         <div class="sidebar-title">Your Songs</div>
         <input class="sb-input" type="text" id="searchInput" placeholder="Search songs…" oninput="renderSongList()" style="margin-bottom:0">
@@ -442,7 +442,7 @@
       </div>
     </div>
     <!-- COMMUNITY LIBRARY -->
-    <div class="tab-panel active" id="panel-community" style="overflow-y:auto;display:flex;flex-direction:column">
+    <div class="tab-panel" id="panel-community" style="overflow-y:auto;display:flex;flex-direction:column">
       <div class="sidebar-section">
         <div class="sidebar-title">Community Songs</div>
         <div class="drive-hint">Songs shared by the community. Browse, load into your library, or
@@ -1331,16 +1331,23 @@ async function deleteSongFromGitHub(song) {
 
 // ── Community Library ─────────────────────────────────────────────
 const COMMUNITY_REPO = 'mgaudone-cmyk/guitar-chords-library';
-const COMMUNITY_API  = `https://api.github.com/repos/${COMMUNITY_REPO}/contents/guitar-chords-library/songs`;
+const COMMUNITY_API  = `https://api.github.com/repos/${COMMUNITY_REPO}/contents/songs`;
 let communityFiles = [];
 
 async function loadCommunityList() {
   const listEl = document.getElementById('communityList');
   listEl.innerHTML = '<div style="padding:20px;font-size:0.72rem;color:var(--text-muted);text-align:center;font-family:monospace">Loading…</div>';
   try {
-    const res = await fetch(COMMUNITY_API);
-    if (!res.ok) throw new Error('Could not reach community library');
+    const res = await fetch(COMMUNITY_API, {
+      headers: { 'Accept': 'application/vnd.github.v3+json' },
+      cache: 'no-cache'
+    });
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`GitHub API returned ${res.status}: ${txt.slice(0,120)}`);
+    }
     const files = await res.json();
+    if (!Array.isArray(files)) throw new Error('Unexpected response: ' + JSON.stringify(files).slice(0,120));
     communityFiles = files
       .filter(f => f.name.endsWith('.txt') || f.name.endsWith('.cho'))
       .map(f => ({
@@ -1348,12 +1355,17 @@ async function loadCommunityList() {
         url: f.download_url,
         raw: f.name
       }));
+    if (communityFiles.length === 0) {
+      listEl.innerHTML = '<div style="padding:20px;font-size:0.72rem;color:var(--text-muted);text-align:center;font-family:monospace">No songs in the library yet.<br>Be the first to share one!</div>';
+      return;
+    }
     renderCommunityList(communityFiles);
   } catch(err) {
-    listEl.innerHTML = `<div style="padding:20px;font-size:0.72rem;color:var(--red);text-align:center;font-family:monospace">
-      Could not load songs.<br>Check your internet connection.<br><br>
-      <button onclick="loadCommunityList()" style="margin-top:6px;font-size:0.7rem;padding:6px 12px">↻ Try Again</button><br><br>
-      <a href="https://github.com/${COMMUNITY_REPO}" target="_blank" style="color:var(--amber)">Open on GitHub ↗</a>
+    listEl.innerHTML = `<div style="padding:20px;font-size:0.75rem;color:var(--red);text-align:center;font-family:monospace;line-height:1.6">
+      Failed to load songs.<br>
+      <span style="font-size:0.65rem;color:var(--text-muted);word-break:break-all">${err.message}</span><br><br>
+      <button onclick="loadCommunityList()" style="font-size:0.75rem;padding:8px 16px;margin-bottom:8px">↻ Try Again</button><br>
+      <a href="https://github.com/${COMMUNITY_REPO}/tree/main/songs" target="_blank" style="color:var(--amber);font-size:0.7rem">Browse on GitHub ↗</a>
     </div>`;
   }
 }
@@ -1545,9 +1557,6 @@ async function init() {
   }
   // @@FRETBOARD_SONGS_END@@
   renderSongList();
-  // Load community tab by default
-  communityLoaded = true;
-  loadCommunityList();
   updateSyncStatus();
 }
 init();
@@ -1594,7 +1603,7 @@ if('serviceWorker' in navigator){
 
 <div id="appVersion" style="position:fixed;bottom:4px;right:8px;font-size:0.55rem;
   color:var(--text-muted);font-family:'JetBrains Mono',monospace;
-  opacity:0.4;pointer-events:none;z-index:10;letter-spacing:0.05em">v2026.03.25-1442</div>
+  opacity:0.4;pointer-events:none;z-index:10;letter-spacing:0.05em">v2026.03.25-1457</div>
 
 </body>
 </html>
