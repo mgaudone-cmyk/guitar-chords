@@ -1328,7 +1328,7 @@ let communityFiles = [];
 
 async function loadCommunityList() {
   const listEl = document.getElementById('communityList');
-  listEl.innerHTML = '<div style="padding:20px;font-size:0.72rem;color:var(--text-muted);text-align:center;font-family:monospace">Loading…</div>';
+  listEl.innerHTML = '<div style="padding:16px;font-size:0.68rem;color:var(--text-muted);text-align:center;font-family:monospace">Loading…</div>';
   try {
     const res = await fetch(COMMUNITY_API, {
       headers: { 'Accept': 'application/vnd.github.v3+json' },
@@ -1336,32 +1336,31 @@ async function loadCommunityList() {
     });
     if (!res.ok) {
       const txt = await res.text();
-      throw new Error(`GitHub API returned ${res.status}: ${txt.slice(0,120)}`);
+      throw new Error(res.status + ': ' + txt.slice(0,200));
     }
     const files = await res.json();
-    if (!Array.isArray(files)) throw new Error('Unexpected response: ' + JSON.stringify(files).slice(0,120));
+    if (!Array.isArray(files)) throw new Error('Not array: ' + JSON.stringify(files).slice(0,150));
     communityFiles = files
-      .filter(f => f.name.endsWith('.txt') || f.name.endsWith('.cho'))
+      .filter(f => f.name.endsWith('.txt') || f.name.endsWith('.cho') || f.name.endsWith('.docx'))
       .map(f => ({
-        name: f.name.replace(/\.(txt|cho)$/, '').replace(/_/g, ' '),
+        name: f.name.replace(/\.(txt|cho|docx)$/, '').replace(/_/g, ' '),
         url: f.download_url,
         raw: f.name
       }));
     if (communityFiles.length === 0) {
-      listEl.innerHTML = '<div style="padding:20px;font-size:0.72rem;color:var(--text-muted);text-align:center;font-family:monospace">No songs in the library yet.<br>Be the first to share one!</div>';
+      listEl.innerHTML = '<div style="padding:20px;font-size:0.72rem;color:var(--text-muted);text-align:center;font-family:monospace">No songs found.</div>';
       return;
     }
     renderCommunityList(communityFiles);
   } catch(err) {
-    listEl.innerHTML = `<div style="padding:20px;font-size:0.75rem;color:var(--red);text-align:center;font-family:monospace;line-height:1.6">
-      Failed to load songs.<br>
-      <span style="font-size:0.65rem;color:var(--text-muted);word-break:break-all">${err.message}</span><br><br>
-      <button onclick="loadCommunityList()" style="font-size:0.75rem;padding:8px 16px;margin-bottom:8px">↻ Try Again</button><br>
-      <a href="https://github.com/${COMMUNITY_REPO}/tree/main/songs" target="_blank" style="color:var(--amber);font-size:0.7rem">Browse on GitHub ↗</a>
-    </div>`;
+    listEl.innerHTML = '<div style="padding:12px;font-size:0.68rem;color:#ff6b6b;font-family:monospace;line-height:1.8">'
+      + '<b>Failed to load songs</b><br>'
+      + '<div style="background:#111;padding:6px;border-radius:4px;margin:4px 0;word-break:break-all;font-size:0.62rem">' + (err.message||err) + '</div>'
+      + '<div style="background:#111;padding:4px 6px;border-radius:4px;margin-bottom:8px;word-break:break-all;font-size:0.58rem;color:#aaa">URL: ' + COMMUNITY_API + '</div>'
+      + '<button onclick="loadCommunityList()" style="font-size:0.75rem;padding:8px 16px">↻ Try Again</button>'
+      + '</div>';
   }
 }
-
 function renderCommunityList(files) {
   const listEl = document.getElementById('communityList');
   if (!files.length) {
@@ -1595,9 +1594,7 @@ if('serviceWorker' in navigator){
 </script>
 
 
-<div id="appVersion" style="position:fixed;bottom:4px;right:8px;font-size:0.55rem;
-  color:var(--text-muted);font-family:'JetBrains Mono',monospace;
-  opacity:0.4;pointer-events:none;z-index:10;letter-spacing:0.05em">v2026.03.25-2045</div>
+<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.03.25-2100</div>
 
 </body>
 </html>
