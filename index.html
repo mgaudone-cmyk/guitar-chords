@@ -460,15 +460,7 @@
           Click the Community tab to load songs
         </div>
       </div>
-      <div class="sidebar-section" style="border-top:1px solid var(--border);padding-top:10px;flex-shrink:0">
-        <div style="font-size:0.7rem;font-weight:bold;color:var(--amber);margin-bottom:6px">🔍 Search Ultimate Guitar</div>
-        <div class="sb-row">
-          <input class="sb-input" type="text" id="ugSearch" placeholder="Artist or song…"
-                 style="margin-bottom:0" onkeydown="if(event.key==='Enter')searchUG()">
-          <button onclick="searchUG()" style="flex-shrink:0">Search</button>
-        </div>
-        <div class="drive-hint" style="margin-top:6px">Opens in new tab. Copy the chord sheet and paste it in Manual tab.</div>
-      </div>
+
     </div>
 
   </aside>
@@ -1399,21 +1391,23 @@ async function loadCommunitySong(encodedUrl, encodedName) {
     showToast('Loading…', 'success');
     const res = await fetch(url);
     if (!res.ok) throw new Error('Could not fetch song');
-    const text = cleanText(await res.text());
+
+    let text;
+    if (url.toLowerCase().endsWith('.docx')) {
+      const buf = await res.arrayBuffer();
+      text = await extractDocxText(buf);
+    } else {
+      text = await res.text();
+    }
+    text = cleanText(text);
+
     const song = { id: Date.now().toString(), title: name, key: detectKey(text), content: text, source: url };
     songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
-    pushSongToGitHub(song);
     switchTab('library');
     showToast(`"${name}" added to your library ✓`, 'success');
   } catch(err) {
     showToast('Could not load song: ' + err.message, 'error');
   }
-}
-
-function searchUG() {
-  const q = document.getElementById('ugSearch').value.trim();
-  if (!q) return;
-  window.open(`https://www.ultimate-guitar.com/search.php?search_type=title&value=${encodeURIComponent(q)}`, '_blank');
 }
 
 // Auto-load community list when tab is opened
@@ -1603,7 +1597,7 @@ if('serviceWorker' in navigator){
 
 <div id="appVersion" style="position:fixed;bottom:4px;right:8px;font-size:0.55rem;
   color:var(--text-muted);font-family:'JetBrains Mono',monospace;
-  opacity:0.4;pointer-events:none;z-index:10;letter-spacing:0.05em">v2026.03.25-1516</div>
+  opacity:0.4;pointer-events:none;z-index:10;letter-spacing:0.05em">v2026.03.25-2008</div>
 
 </body>
 </html>
