@@ -720,10 +720,10 @@ function renderSongList() {
 function selectSong(id) {
   currentSong = songs.find(s => s.id === id) || null;
   if (!currentSong) return;
-  transposeSteps = currentSong.settings?.transpose   ?? 0;
-  scrollSpeed    = currentSong.settings?.scrollSpeed ?? 1;
-  fontSize       = currentSong.settings?.fontSize    ?? 16;
-  document.getElementById('scrollSpeed').value = scrollSpeed;
+  transposeSteps = currentSong.settings?.transpose ?? 0;
+  const sv = currentSong.settings?.scrollSpeed ?? 0.5;
+  scrollSpeed = SCROLL_STEPS.includes(sv) ? sv : SCROLL_STEPS.reduce((a,b) => Math.abs(b-sv) < Math.abs(a-sv) ? b : a);
+  fontSize = currentSong.settings?.fontSize ?? 16;
   document.getElementById('speedLabel').textContent = scrollSpeed + '×';
   document.getElementById('viewer').style.fontSize = fontSize + 'px';
   updateTransposeDisplay();
@@ -1665,7 +1665,7 @@ if('serviceWorker' in navigator){
 </script>
 
 
-<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.03.26-1000</div>
+<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.03.26-1030</div>
 
 </body>
 </html>
