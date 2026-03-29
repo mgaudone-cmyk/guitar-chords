@@ -360,8 +360,9 @@
   <div class="ctrl-group">
     <label class="ctrl-label">Scroll</label>
     <button id="scrollBtn" onclick="toggleScroll()">▶ Auto</button>
-    <input type="range" id="scrollSpeed" min="1" max="20" value="3" title="Scroll speed" oninput="updateScrollSpeed()">
-    <label class="ctrl-label" id="speedLabel">4×</label>
+    <button onclick="changeScrollSpeed(-1)">−</button>
+    <div class="transpose-display" id="speedLabel">0.5×</div>
+    <button onclick="changeScrollSpeed(+1)">+</button>
   </div>
 
   <div class="sep"></div>
@@ -555,7 +556,8 @@ let currentSong  = null;
 let transposeSteps = 0;
 let scrollRAF    = null;
 let scrolling    = false;
-let scrollSpeed  = 3;
+let scrollSpeed  = 0.5;
+const SCROLL_STEPS = [0.05, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0];
 let fontSize     = 16;
 
 // ── Transpose ────────────────────────────────────────────────
@@ -719,7 +721,7 @@ function selectSong(id) {
   currentSong = songs.find(s => s.id === id) || null;
   if (!currentSong) return;
   transposeSteps = currentSong.settings?.transpose   ?? 0;
-  scrollSpeed    = currentSong.settings?.scrollSpeed ?? 3;
+  scrollSpeed    = currentSong.settings?.scrollSpeed ?? 1;
   fontSize       = currentSong.settings?.fontSize    ?? 16;
   document.getElementById('scrollSpeed').value = scrollSpeed;
   document.getElementById('speedLabel').textContent = scrollSpeed + '×';
@@ -729,7 +731,9 @@ function selectSong(id) {
   document.getElementById('songView').style.display = 'block';
   renderCurrentSong();
   renderSongList();
-  switchTab('library');
+  // Don't steal focus from community tab when loading a community song
+  const activeTab = document.querySelector('.tab-btn.active')?.id;
+  if (activeTab !== 'tab-community') switchTab('library');
 }
 
 // Custom confirm (native confirm() blocked in sandboxed iframes)
@@ -815,7 +819,31 @@ async function extractDocxText(arrayBuffer) {
     offset = dataStart + compressed;
   }
 
-  if (!docXml) throw new Error('Could not find word/document.xml inside the .docx file');
+  if (!docXml) {
+    // Try root-level document.xml (some non-standard docx files)
+    for (let o2 = 0; o2 < bytes.length - 30;) {
+      if (u32(o2) !== 0x04034b50) break;
+      const m2 = u16(o2+8), cs2 = u32(o2+18), fn2 = u16(o2+26), ex2 = u16(o2+28);
+      const n2 = decoder.decode(bytes.slice(o2+30, o2+30+fn2));
+      const ds2 = o2+30+fn2+ex2;
+      if (n2.endsWith('document.xml')) {
+        const chunk2 = bytes.slice(ds2, ds2+cs2);
+        if (m2 === 0) { docXml = decoder.decode(chunk2); }
+        else if (m2 === 8) {
+          const ds3 = new DecompressionStream('deflate-raw');
+          const w3 = ds3.writable.getWriter(); const r3 = ds3.readable.getReader();
+          w3.write(chunk2); w3.close();
+          const parts3 = []; for(;;){const {done,value}=await r3.read();if(done)break;parts3.push(value);}
+          const out3 = new Uint8Array(parts3.reduce((n,p)=>n+p.length,0));
+          let p3=0; for(const part of parts3){out3.set(part,p3);p3+=part.length;}
+          docXml = decoder.decode(out3);
+        }
+        break;
+      }
+      o2 = ds2 + cs2;
+    }
+    if (!docXml) throw new Error('Cannot read this file format. Re-save as .docx from Word.');
+  }
 
   // Parse XML: each <w:p> = one line, collect text from all <w:t> children
   const xmlDoc = new DOMParser().parseFromString(docXml, 'application/xml');
@@ -1059,7 +1087,7 @@ function startScrolling() {
     if (last !== null) {
       const delta = ts - last;
       // speed 1–20 → 20–400 px/sec. Accumulate fractional pixels.
-      accumulated += (scrollSpeed * 10 * delta) / 1000;
+      accumulated += (scrollSpeed * 30 * delta) / 1000;
       const whole = Math.floor(accumulated);
       if (whole >= 1) {
         viewer.scrollTop += whole;
@@ -1075,13 +1103,18 @@ function startScrolling() {
   scrollRAF = requestAnimationFrame(step);
 }
 
-function updateScrollSpeed() {
-  scrollSpeed = parseInt(document.getElementById('scrollSpeed').value);
+function changeScrollSpeed(dir) {
+  const idx = SCROLL_STEPS.indexOf(scrollSpeed);
+  const cur = idx === -1 ? 0 : idx;
+  const next = Math.max(0, Math.min(SCROLL_STEPS.length - 1, cur + dir));
+  scrollSpeed = SCROLL_STEPS[next];
   document.getElementById('speedLabel').textContent = scrollSpeed + '×';
-  document.getElementById('scrollLabel').textContent = `Auto-scrolling… (${scrollSpeed}×)`;
+  const lbl = document.getElementById('scrollLabel');
+  if (lbl) lbl.textContent = 'Auto-scrolling… (' + scrollSpeed + '×)';
   if (scrolling) startScrolling();
   saveCurrentSettings();
 }
+function updateScrollSpeed() {} // legacy no-op
 
 // ── Font size ─────────────────────────────────────────────────
 function changeFontSize(delta) {
@@ -1412,7 +1445,6 @@ async function loadCommunitySong(encodedUrl, encodedName) {
     text = cleanText(text);
     const song = { id: Date.now().toString(), title: name, key: detectKey(text), content: text, source: url };
     songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
-    switchTab('library');
     showToast('"' + name + '" added to your library ✓', 'success');
   } catch(err) {
     showToast('Could not load: ' + err.message, 'error');
@@ -1442,7 +1474,6 @@ async function loadCommunitySong(encodedUrl, encodedName) {
 
     const song = { id: Date.now().toString(), title: name, key: detectKey(text), content: text, source: url };
     songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
-    switchTab('library');
     showToast(`"${name}" added to your library ✓`, 'success');
   } catch(err) {
     showToast('Could not load song: ' + err.message, 'error');
@@ -1634,7 +1665,7 @@ if('serviceWorker' in navigator){
 </script>
 
 
-<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.03.25-2140</div>
+<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.03.26-1000</div>
 
 </body>
 </html>
