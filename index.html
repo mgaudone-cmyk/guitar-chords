@@ -298,6 +298,31 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
 
+
+  /* ── Chord Diagrams ── */
+  #chordStrip {
+    display: none;
+    flex-wrap: nowrap;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.2);
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  #chordStrip::-webkit-scrollbar { display: none; }
+  #chordStrip.visible { display: flex; }
+  .chord-diagram { cursor: default; flex-shrink: 0; }
+  .chord-diagrams-toggle {
+    font-size: 0.65rem; padding: 2px 8px;
+    border-color: var(--border); color: var(--text-muted);
+    background: none;
+  }
+  .chord-diagrams-toggle.active { color: var(--amber); border-color: var(--amber); }
+
   /* ── CONFIRM MODAL ── */
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.7);
@@ -467,6 +492,7 @@
   </aside>
 
   <div id="viewer">
+    <div id="chordStrip"></div>
     <div class="empty-state" id="emptyState">
       <div class="empty-guitar">🎸</div>
       <h2>No song selected</h2>
@@ -636,8 +662,9 @@ function renderCurrentSong() {
     html += `<span>🔀 ${transposeSteps > 0 ? '+' : ''}${transposeSteps} semitones</span>`;
   if (currentSong.source)
     html += `<span>☁ <a href="${esc(currentSong.source)}" target="_blank" style="color:var(--amber-dim)">View source</a></span>`;
-  html += `<span style="margin-left:auto">
-    <button onclick="shareToCommunity()" style="font-size:0.65rem;padding:3px 8px;border-color:var(--border);color:var(--text-muted);background:none" title="Share this song to the community library">🌐 Share to Community</button>
+  html += `<span style="margin-left:auto;display:flex;gap:6px;align-items:center">
+    <button class="chord-diagrams-toggle ${showChordDiagrams ? 'active' : ''}" onclick="toggleChordDiagrams()" title="Show/hide chord diagrams">♬ Chords</button>
+    <button onclick="shareToCommunity()" style="font-size:0.65rem;padding:2px 8px;border-color:var(--border);color:var(--text-muted);background:none" title="Share this song to the community library">🌐 Share</button>
   </span>`;
   html += `</div></div><div class="chord-sheet">`;
 
@@ -1589,6 +1616,153 @@ document.getElementById('viewer').addEventListener('click', function(e) {
   if (sidebarVisible) hideSidebar();
 });
 
+
+// ── Chord Diagram Engine ──────────────────────────────────────────
+let showChordDiagrams = false;
+
+const CHORD_DB = {
+  "A":    {f:[0,2,2,2,0,-1]},  "Am":   {f:[0,1,2,2,0,-1]},
+  "A7":   {f:[0,2,0,2,0,-1]},  "Am7":  {f:[0,1,0,2,0,-1]},
+  "Amaj7":{f:[0,2,1,2,0,-1]},  "Asus2":{f:[0,0,2,2,0,-1]},
+  "Asus4":{f:[0,3,2,2,0,-1]},  "Aadd9":{f:[0,0,2,2,0,-1]},
+  "B":    {f:[2,4,4,4,2,-1],b:2}, "Bm": {f:[2,3,4,4,2,-1],b:2},
+  "B7":   {f:[0,2,1,2,2,-1]},  "Bm7":  {f:[2,2,4,4,2,-1],b:2},
+  "C":    {f:[0,1,0,2,3,-1]},  "Cm":   {f:[3,4,5,5,3,-1],b:3},
+  "C7":   {f:[0,1,3,2,3,-1]},  "Cmaj7":{f:[0,0,0,2,3,-1]},
+  "Cadd9":{f:[0,3,0,2,3,-1]},
+  "D":    {f:[2,3,2,0,-1,-1]}, "Dm":   {f:[1,3,2,0,-1,-1]},
+  "D7":   {f:[2,1,2,0,-1,-1]}, "Dmaj7":{f:[2,2,2,0,-1,-1]},
+  "Dsus2":{f:[0,3,2,0,-1,-1]}, "Dsus4":{f:[3,3,2,0,-1,-1]},
+  "Dm7":  {f:[1,1,2,0,-1,-1]},
+  "E":    {f:[0,0,1,2,2,0]},   "Em":   {f:[0,0,0,2,2,0]},
+  "E7":   {f:[0,0,1,0,2,0]},   "Em7":  {f:[0,0,0,0,2,0]},
+  "Emaj7":{f:[0,0,1,1,2,0]},
+  "F":    {f:[1,1,2,3,3,1],b:1},"Fm":  {f:[1,1,1,3,3,1],b:1},
+  "F7":   {f:[1,1,2,1,3,1],b:1},"Fmaj7":{f:[0,1,2,2,0,-1]},
+  "G":    {f:[3,0,0,0,2,3]},   "Gm":   {f:[3,3,3,5,5,3],b:3},
+  "G7":   {f:[1,0,0,0,2,3]},   "Gmaj7":{f:[2,0,0,0,2,3]},
+  "Gsus4":{f:[3,1,0,0,2,3]},   "Gsus2":{f:[0,0,0,0,2,3]},
+  "G/B":  {f:[0,0,0,0,2,-1]},  "D/F#": {f:[2,3,2,0,-1,2]},
+  "C/G":  {f:[0,1,0,2,3,3]},   "Am/E": {f:[0,1,2,2,0,0]},
+};
+
+// Chromatic scale for transposing chord names
+function transposeChordName(chord, steps) {
+  if (steps === 0) return chord;
+  const match = chord.match(/^([A-G][b#]?)(.*)/);
+  if (!match) return chord;
+  const root = match[1], suffix = match[2];
+  let idx = NOTES.indexOf(root);
+  if (idx === -1) idx = NOTES_FLAT.indexOf(root);
+  if (idx === -1) return chord;
+  return NOTES[((idx + steps) % 12 + 12) % 12] + suffix;
+}
+
+function chordSVG(name) {
+  // Try exact match, then strip slash bass note
+  let data = CHORD_DB[name];
+  if (!data) {
+    const base = name.split('/')[0];
+    data = CHORD_DB[base];
+  }
+  if (!data) return null;
+
+  const frets = data.f, barre = data.b || null;
+  const W = 58, H = 86, padL = 8, padT = 20;
+  const sg = 8, fg = 12, nS = 6, nF = 4;
+  const gW = sg * (nS - 1);
+
+  const pressed = frets.filter(f => f > 0);
+  const hasOpen = frets.some(f => f === 0);
+  let ds = 1;
+  if (pressed.length) {
+    const mn = barre ? barre : Math.min(...pressed);
+    ds = (hasOpen && mn <= 4) ? 1 : mn;
+  }
+  const showNut = ds === 1;
+  const nutH = showNut ? 3 : 0;
+
+  let s = `<svg class="chord-diagram" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<text x="${W/2}" y="10" text-anchor="middle" font-size="8.5" font-family="monospace" font-weight="bold" fill="#D4A017">${name}</text>`;
+
+  if (showNut) {
+    s += `<rect x="${padL}" y="${padT}" width="${gW}" height="3" rx="1" fill="#999"/>`;
+  } else {
+    s += `<text x="${padL-1}" y="${padT+fg/2+3}" text-anchor="end" font-size="6.5" fill="#777">${ds}fr</text>`;
+  }
+
+  for (let i = 0; i <= nF; i++) {
+    const y = padT + nutH + i * fg;
+    s += `<line x1="${padL}" y1="${y}" x2="${padL+gW}" y2="${y}" stroke="#444" stroke-width="0.7"/>`;
+  }
+  for (let i = 0; i < nS; i++) {
+    const x = padL + i * sg;
+    s += `<line x1="${x}" y1="${padT+nutH}" x2="${x}" y2="${padT+nutH+nF*fg}" stroke="#555" stroke-width="0.8"/>`;
+  }
+
+  frets.forEach((fret, i) => {
+    const x = padL + i * sg;
+    if (fret === -1) s += `<text x="${x}" y="${padT-2}" text-anchor="middle" font-size="8" fill="#555">×</text>`;
+    else if (fret === 0) s += `<circle cx="${x}" cy="${padT-5}" r="2.5" fill="none" stroke="#555" stroke-width="1"/>`;
+  });
+
+  if (barre && ds <= barre && barre <= ds+3) {
+    const bi = frets.reduce((acc,f,i) => { if(f>=barre) acc.push(i); return acc; }, []);
+    if (bi.length >= 2) {
+      const by = padT + nutH + (barre-ds)*fg + fg/2;
+      s += `<rect x="${padL+bi[0]*sg}" y="${by-4}" width="${(bi[bi.length-1]-bi[0])*sg}" height="8" rx="4" fill="#D4A017"/>`;
+    }
+  }
+
+  frets.forEach((fret, i) => {
+    if (fret > 0 && fret >= ds && fret <= ds+3) {
+      if (barre && fret === barre) return;
+      const x = padL + i * sg;
+      const y = padT + nutH + (fret-ds)*fg + fg/2;
+      s += `<circle cx="${x}" cy="${y}" r="3.8" fill="#D4A017"/>`;
+    }
+  });
+
+  return s + '</svg>';
+}
+
+function getUniqueChordsFromSong() {
+  if (!currentSong) return [];
+  const seen = new Set(), result = [];
+  currentSong.content.split('\n').forEach(line => {
+    if (!isChordLine(line)) return;
+    line.trim().split(/\s+/).forEach(token => {
+      const transposed = transposeChordName(token, transposeSteps);
+      const inDB = !!(CHORD_DB[transposed] || CHORD_DB[transposed.split('/')[0]]);
+      if (inDB && !seen.has(transposed)) {
+        seen.add(transposed);
+        result.push(transposed);
+      }
+    });
+  });
+  return result;
+}
+
+function renderChordStrip() {
+  const strip = document.getElementById('chordStrip');
+  if (!strip) return;
+  if (!showChordDiagrams || !currentSong) {
+    strip.classList.remove('visible');
+    return;
+  }
+  const chords = getUniqueChordsFromSong();
+  const svgs = chords.map(c => chordSVG(c)).filter(Boolean);
+  if (!svgs.length) { strip.classList.remove('visible'); return; }
+  strip.innerHTML = svgs.join('');
+  strip.classList.add('visible');
+}
+
+function toggleChordDiagrams() {
+  showChordDiagrams = !showChordDiagrams;
+  renderChordStrip();
+  renderCurrentSong(); // re-render to update button state
+}
+
 // ── Event delegation for song list ───────────────────────────
 document.getElementById('songList').addEventListener('click', function(e) {
   const delBtn = e.target.closest('[data-del]');
@@ -1665,7 +1839,7 @@ if('serviceWorker' in navigator){
 </script>
 
 
-<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.03.26-1100</div>
+<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.04.05-02</div>
 
 </body>
 </html>
