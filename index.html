@@ -1621,26 +1621,26 @@ document.getElementById('viewer').addEventListener('click', function(e) {
 let showChordDiagrams = false;
 
 const CHORD_DB = {
-  "A":    {f:[0,2,2,2,0,-1]},  "Am":   {f:[0,1,2,2,0,-1]},
-  "A7":   {f:[0,2,0,2,0,-1]},  "Am7":  {f:[0,1,0,2,0,-1]},
+  "A":    {f:[0,2,2,2,0,-1], fn:[0,1,2,3,0,0]},  "Am":   {f:[0,1,2,2,0,-1], fn:[0,1,2,3,0,0]},
+  "A7":   {f:[0,2,0,2,0,-1], fn:[0,2,0,1,0,0]},  "Am7":  {f:[0,1,0,2,0,-1]},
   "Amaj7":{f:[0,2,1,2,0,-1]},  "Asus2":{f:[0,0,2,2,0,-1]},
   "Asus4":{f:[0,3,2,2,0,-1]},  "Aadd9":{f:[0,0,2,2,0,-1]},
   "B":    {f:[2,4,4,4,2,-1],b:2}, "Bm": {f:[2,3,4,4,2,-1],b:2},
-  "B7":   {f:[0,2,1,2,2,-1]},  "Bm7":  {f:[2,2,4,4,2,-1],b:2},
-  "C":    {f:[0,1,0,2,3,-1]},  "Cm":   {f:[3,4,5,5,3,-1],b:3},
+  "B7":   {f:[0,2,1,2,2,-1], fn:[0,2,1,3,4,0]},  "Bm7":  {f:[2,2,4,4,2,-1],b:2},
+  "C":    {f:[0,1,0,2,3,-1], fn:[0,1,0,2,3,0]},  "Cm":   {f:[3,4,5,5,3,-1],b:3},
   "C7":   {f:[0,1,3,2,3,-1]},  "Cmaj7":{f:[0,0,0,2,3,-1]},
   "Cadd9":{f:[0,3,0,2,3,-1]},
-  "D":    {f:[2,3,2,0,-1,-1]}, "Dm":   {f:[1,3,2,0,-1,-1]},
-  "D7":   {f:[2,1,2,0,-1,-1]}, "Dmaj7":{f:[2,2,2,0,-1,-1]},
+  "D":    {f:[2,3,2,0,-1,-1], fn:[1,3,2,0,0,0]}, "Dm":   {f:[1,3,2,0,-1,-1], fn:[1,3,2,0,0,0]},
+  "D7":   {f:[2,1,2,0,-1,-1], fn:[2,1,3,0,0,0]}, "Dmaj7":{f:[2,2,2,0,-1,-1]},
   "Dsus2":{f:[0,3,2,0,-1,-1]}, "Dsus4":{f:[3,3,2,0,-1,-1]},
   "Dm7":  {f:[1,1,2,0,-1,-1]},
-  "E":    {f:[0,0,1,2,2,0]},   "Em":   {f:[0,0,0,2,2,0]},
-  "E7":   {f:[0,0,1,0,2,0]},   "Em7":  {f:[0,0,0,0,2,0]},
+  "E":    {f:[0,0,1,2,2,0], fn:[0,0,1,3,2,0]},   "Em":   {f:[0,0,0,2,2,0], fn:[0,0,0,2,1,0]},
+  "E7":   {f:[0,0,1,0,2,0], fn:[0,0,1,0,2,0]},   "Em7":  {f:[0,0,0,0,2,0]},
   "Emaj7":{f:[0,0,1,1,2,0]},
-  "F":    {f:[1,1,2,3,3,1],b:1},"Fm":  {f:[1,1,1,3,3,1],b:1},
+  "F":    {f:[1,1,2,3,3,1],b:1, fn:[1,1,2,3,4,1]},"Fm":  {f:[1,1,1,3,3,1],b:1},
   "F7":   {f:[1,1,2,1,3,1],b:1},"Fmaj7":{f:[0,1,2,2,0,-1]},
-  "G":    {f:[3,0,0,0,2,3]},   "Gm":   {f:[3,3,3,5,5,3],b:3},
-  "G7":   {f:[1,0,0,0,2,3]},   "Gmaj7":{f:[2,0,0,0,2,3]},
+  "G":    {f:[3,0,0,0,2,3], fn:[3,0,0,0,1,4]},   "Gm":   {f:[3,3,3,5,5,3],b:3},
+  "G7":   {f:[1,0,0,0,2,3], fn:[1,0,0,0,2,3]},   "Gmaj7":{f:[2,0,0,0,2,3]},
   "Gsus4":{f:[3,1,0,0,2,3]},   "Gsus2":{f:[0,0,0,0,2,3]},
   "G/B":  {f:[0,0,0,0,2,-1]},  "D/F#": {f:[2,3,2,0,-1,2]},
   "C/G":  {f:[0,1,0,2,3,3]},   "Am/E": {f:[0,1,2,2,0,0]},
@@ -1667,7 +1667,9 @@ function chordSVG(name) {
   }
   if (!data) return null;
 
-  const frets = data.f, barre = data.b || null;
+  // Reverse frets so string order is E A D G B e (low to high, left to right)
+  const frets = [...data.f].reverse(), barre = data.b || null;
+  const fingers = data.fn ? [...data.fn].reverse() : null;
   const W = 58, H = 86, padL = 8, padT = 20;
   const sg = 8, fg = 12, nS = 6, nF = 4;
   const gW = sg * (nS - 1);
@@ -1719,7 +1721,10 @@ function chordSVG(name) {
       if (barre && fret === barre) return;
       const x = padL + i * sg;
       const y = padT + nutH + (fret-ds)*fg + fg/2;
-      s += `<circle cx="${x}" cy="${y}" r="3.8" fill="#D4A017"/>`;
+      s += `<circle cx="${x}" cy="${y}" r="4" fill="#D4A017"/>`;
+      if (fingers && fingers[i]) {
+        s += `<text x="${x}" y="${y+3}" text-anchor="middle" font-size="5.5" fill="#000" font-weight="bold">${fingers[i]}</text>`;
+      }
     }
   });
 
@@ -1839,7 +1844,7 @@ if('serviceWorker' in navigator){
 </script>
 
 
-<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.04.05-02</div>
+<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.04.05-03</div>
 
 </body>
 </html>
