@@ -441,6 +441,7 @@
     <label class="ctrl-label">Size</label>
     <button onclick="changeFontSize(-1)">A−</button>
     <button onclick="changeFontSize(1)">A+</button>
+    <button onclick="saveGlobalDefaults()" title="Save current speed & size as default for all songs" style="font-size:0.6rem;padding:3px 7px;border-color:var(--border);color:var(--text-muted)">Set Default</button>
   </div>
 
   <div class="spacer"></div>
@@ -803,10 +804,11 @@ function renderSongList() {
 function selectSong(id) {
   currentSong = songs.find(s => s.id === id) || null;
   if (!currentSong) return;
+  const gd = loadGlobalDefaults();
   transposeSteps = currentSong.settings?.transpose ?? 0;
-  const sv = currentSong.settings?.scrollSpeed ?? 0.5;
+  const sv = currentSong.settings?.scrollSpeed ?? gd.scrollSpeed;
   scrollSpeed = SCROLL_STEPS.includes(sv) ? sv : SCROLL_STEPS.reduce((a,b) => Math.abs(b-sv) < Math.abs(a-sv) ? b : a);
-  fontSize = currentSong.settings?.fontSize ?? 16;
+  fontSize = currentSong.settings?.fontSize ?? gd.fontSize;
   document.getElementById('speedLabel').textContent = scrollSpeed + '×';
   document.getElementById('viewer').style.fontSize = fontSize + 'px';
   updateTransposeDisplay();
@@ -1673,6 +1675,22 @@ document.getElementById('viewer').addEventListener('click', function(e) {
 });
 
 
+
+// ── Global Defaults ───────────────────────────────────────────────
+function loadGlobalDefaults() {
+  try {
+    const d = JSON.parse(localStorage.getItem('mattstool_defaults') || '{}');
+    return { scrollSpeed: d.scrollSpeed ?? 0.5, fontSize: d.fontSize ?? 16 };
+  } catch(e) { return { scrollSpeed: 0.5, fontSize: 16 }; }
+}
+
+function saveGlobalDefaults() {
+  try {
+    localStorage.setItem('mattstool_defaults', JSON.stringify({ scrollSpeed, fontSize }));
+    showToast('Default speed & size saved ✓', 'success');
+  } catch(e) {}
+}
+
 // ── Chord Diagram Engine ──────────────────────────────────────────
 let showChordDiagrams = false;
 
@@ -1839,7 +1857,7 @@ const CHORD_ALTS = {
     {
       "label": "Easier F",
       "name": "F",
-      "note": "Skip low E string",
+      "note": "Skip low E",
       "f": [
         -1,
         1,
@@ -1861,7 +1879,7 @@ const CHORD_ALTS = {
     {
       "label": "Fmaj7",
       "name": "Fmaj7",
-      "note": "No barre, sounds similar",
+      "note": "No barre needed",
       "f": [
         -1,
         0,
@@ -1882,7 +1900,7 @@ const CHORD_ALTS = {
     {
       "label": "Mini F",
       "name": "F",
-      "note": "Top 3 strings only",
+      "note": "Top 3 strings",
       "f": [
         -1,
         -1,
@@ -1898,6 +1916,28 @@ const CHORD_ALTS = {
         0,
         3,
         1,
+        1
+      ]
+    },
+    {
+      "label": "A-shape 8fr",
+      "name": "F",
+      "note": "Same chord, higher",
+      "f": [
+        -1,
+        8,
+        10,
+        10,
+        10,
+        8
+      ],
+      "b": 8,
+      "fn": [
+        0,
+        1,
+        3,
+        4,
+        2,
         1
       ]
     }
@@ -1928,7 +1968,7 @@ const CHORD_ALTS = {
     {
       "label": "Bm7",
       "name": "Bm7",
-      "note": "Softer sound",
+      "note": "Softer, easier",
       "f": [
         -1,
         2,
@@ -1948,24 +1988,25 @@ const CHORD_ALTS = {
       ]
     },
     {
-      "label": "D instead",
-      "name": "D",
-      "note": "Works in many contexts",
+      "label": "E-shape 7fr",
+      "name": "Bm",
+      "note": "Same chord, higher",
       "f": [
-        -1,
-        -1,
-        0,
-        2,
-        3,
-        2
+        7,
+        7,
+        7,
+        9,
+        9,
+        7
       ],
+      "b": 7,
       "fn": [
-        0,
-        0,
-        0,
+        1,
+        1,
         1,
         3,
-        2
+        4,
+        1
       ]
     }
   ],
@@ -2012,13 +2053,57 @@ const CHORD_ALTS = {
         3,
         4
       ]
+    },
+    {
+      "label": "A-shape 2fr",
+      "name": "B",
+      "note": "Same chord, barre",
+      "f": [
+        -1,
+        2,
+        4,
+        4,
+        4,
+        2
+      ],
+      "b": 2,
+      "fn": [
+        0,
+        1,
+        3,
+        4,
+        2,
+        1
+      ]
+    },
+    {
+      "label": "E-shape 7fr",
+      "name": "B",
+      "note": "Same chord, higher",
+      "f": [
+        7,
+        7,
+        8,
+        9,
+        9,
+        7
+      ],
+      "b": 7,
+      "fn": [
+        1,
+        1,
+        2,
+        3,
+        4,
+        1
+      ]
     }
   ],
   "G": [
     {
       "label": "G easy",
       "name": "G",
-      "note": "Easier fingers",
+      "note": "Easier fingering",
       "f": [
         3,
         2,
@@ -2039,7 +2124,7 @@ const CHORD_ALTS = {
     {
       "label": "Gsus2",
       "name": "Gsus2",
-      "note": "Open, airy sound",
+      "note": "Open, airy",
       "f": [
         3,
         2,
@@ -2058,24 +2143,47 @@ const CHORD_ALTS = {
       ]
     },
     {
-      "label": "Gadd9",
-      "name": "Gadd9",
-      "note": "Rich full sound",
+      "label": "A-shape 10fr",
+      "name": "G",
+      "note": "Same chord, higher",
       "f": [
-        3,
-        2,
-        0,
-        2,
-        3,
-        3
+        -1,
+        10,
+        12,
+        12,
+        12,
+        10
       ],
+      "b": 10,
       "fn": [
-        3,
-        2,
         0,
         1,
         3,
-        4
+        4,
+        2,
+        1
+      ]
+    },
+    {
+      "label": "E-shape 3fr",
+      "name": "G",
+      "note": "Barre version",
+      "f": [
+        3,
+        3,
+        4,
+        5,
+        5,
+        3
+      ],
+      "b": 3,
+      "fn": [
+        1,
+        1,
+        2,
+        3,
+        4,
+        1
       ]
     }
   ],
@@ -2121,6 +2229,50 @@ const CHORD_ALTS = {
         1,
         2
       ]
+    },
+    {
+      "label": "A-shape 3fr",
+      "name": "C",
+      "note": "Same chord, barre",
+      "f": [
+        -1,
+        3,
+        5,
+        5,
+        5,
+        3
+      ],
+      "b": 3,
+      "fn": [
+        0,
+        1,
+        3,
+        4,
+        2,
+        1
+      ]
+    },
+    {
+      "label": "E-shape 8fr",
+      "name": "C",
+      "note": "Same chord, higher",
+      "f": [
+        8,
+        8,
+        9,
+        10,
+        10,
+        8
+      ],
+      "b": 8,
+      "fn": [
+        1,
+        1,
+        2,
+        3,
+        4,
+        1
+      ]
     }
   ],
   "Am": [
@@ -2148,7 +2300,7 @@ const CHORD_ALTS = {
     {
       "label": "Asus2",
       "name": "Asus2",
-      "note": "Easy, open sound",
+      "note": "Open, easy",
       "f": [
         -1,
         0,
@@ -2164,6 +2316,50 @@ const CHORD_ALTS = {
         2,
         0,
         0
+      ]
+    },
+    {
+      "label": "E-shape 5fr",
+      "name": "Am",
+      "note": "Same chord, higher",
+      "f": [
+        5,
+        5,
+        5,
+        7,
+        7,
+        5
+      ],
+      "b": 5,
+      "fn": [
+        1,
+        1,
+        1,
+        3,
+        4,
+        1
+      ]
+    },
+    {
+      "label": "A-shape 12fr",
+      "name": "Am",
+      "note": "Same chord, top",
+      "f": [
+        -1,
+        12,
+        12,
+        12,
+        11,
+        12
+      ],
+      "b": 12,
+      "fn": [
+        0,
+        2,
+        3,
+        4,
+        1,
+        1
       ]
     }
   ],
@@ -2209,6 +2405,50 @@ const CHORD_ALTS = {
         2,
         3
       ]
+    },
+    {
+      "label": "A-shape 5fr",
+      "name": "D",
+      "note": "Same chord, higher",
+      "f": [
+        -1,
+        5,
+        7,
+        7,
+        7,
+        5
+      ],
+      "b": 5,
+      "fn": [
+        0,
+        1,
+        3,
+        4,
+        2,
+        1
+      ]
+    },
+    {
+      "label": "E-shape 10fr",
+      "name": "D",
+      "note": "Same chord, top",
+      "f": [
+        10,
+        10,
+        11,
+        12,
+        12,
+        10
+      ],
+      "b": 10,
+      "fn": [
+        1,
+        1,
+        2,
+        3,
+        4,
+        1
+      ]
     }
   ],
   "E": [
@@ -2253,6 +2493,50 @@ const CHORD_ALTS = {
         3,
         0
       ]
+    },
+    {
+      "label": "A-shape 7fr",
+      "name": "E",
+      "note": "Same chord, higher",
+      "f": [
+        -1,
+        7,
+        9,
+        9,
+        9,
+        7
+      ],
+      "b": 7,
+      "fn": [
+        0,
+        1,
+        3,
+        4,
+        2,
+        1
+      ]
+    },
+    {
+      "label": "E-shape 12fr",
+      "name": "E",
+      "note": "Same chord, top",
+      "f": [
+        12,
+        12,
+        12,
+        12,
+        12,
+        12
+      ],
+      "b": 12,
+      "fn": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
     }
   ],
   "Em": [
@@ -2275,6 +2559,50 @@ const CHORD_ALTS = {
         0,
         1,
         0
+      ]
+    },
+    {
+      "label": "E-shape 7fr",
+      "name": "Bm",
+      "note": "Relative major area",
+      "f": [
+        7,
+        7,
+        7,
+        9,
+        9,
+        7
+      ],
+      "b": 7,
+      "fn": [
+        1,
+        1,
+        1,
+        3,
+        4,
+        1
+      ]
+    },
+    {
+      "label": "A-shape 7fr",
+      "name": "Em",
+      "note": "Same chord, higher",
+      "f": [
+        -1,
+        7,
+        9,
+        9,
+        8,
+        7
+      ],
+      "b": 7,
+      "fn": [
+        0,
+        1,
+        3,
+        4,
+        2,
+        1
       ]
     }
   ],
@@ -2322,24 +2650,47 @@ const CHORD_ALTS = {
       ]
     },
     {
-      "label": "Amaj7",
-      "name": "Amaj7",
-      "note": "Pretty sound",
+      "label": "E-shape 5fr",
+      "name": "A",
+      "note": "Same chord, higher",
+      "f": [
+        5,
+        5,
+        6,
+        7,
+        7,
+        5
+      ],
+      "b": 5,
+      "fn": [
+        1,
+        1,
+        2,
+        3,
+        4,
+        1
+      ]
+    },
+    {
+      "label": "A-shape 12fr",
+      "name": "A",
+      "note": "Same chord, top",
       "f": [
         -1,
-        0,
-        2,
-        1,
-        2,
-        0
+        12,
+        12,
+        12,
+        12,
+        12
       ],
+      "b": 12,
       "fn": [
         0,
-        0,
-        3,
         1,
         2,
-        0
+        3,
+        4,
+        1
       ]
     }
   ]
@@ -2517,7 +2868,7 @@ if('serviceWorker' in navigator){
 </script>
 
 
-<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.04.05-04</div>
+<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.04.05-05</div>
 
 </body>
 </html>
