@@ -360,6 +360,51 @@
   @media (max-width: 700px) {
     main.sidebar-hidden { grid-template-rows: 0 1fr; }
   }
+
+  /* ── Chord Alternatives Modal ── */
+  #chordAltOverlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+    display: flex; align-items: flex-end; justify-content: center;
+    z-index: 600; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  #chordAltOverlay.visible { opacity: 1; pointer-events: all; }
+  #chordAltPanel {
+    background: #1e1e1e; border-top: 1px solid var(--border);
+    border-radius: 16px 16px 0 0; padding: 16px;
+    width: 100%; max-width: 700px;
+    transform: translateY(100%); transition: transform 0.25s ease;
+  }
+  #chordAltOverlay.visible #chordAltPanel { transform: translateY(0); }
+  #chordAltTitle {
+    font-size: 0.8rem; color: var(--amber); font-weight: bold;
+    margin-bottom: 4px; font-family: 'JetBrains Mono', monospace;
+  }
+  #chordAltSubtitle {
+    font-size: 0.68rem; color: var(--text-muted);
+    margin-bottom: 14px; font-family: 'JetBrains Mono', monospace;
+  }
+  #chordAltList {
+    display: flex; gap: 12px; overflow-x: auto;
+    padding-bottom: 8px; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  #chordAltList::-webkit-scrollbar { display: none; }
+  .chord-alt-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; cursor: pointer; flex-shrink: 0;
+    padding: 8px; border-radius: 8px; border: 1px solid var(--border);
+    transition: border-color 0.15s;
+  }
+  .chord-alt-item:hover { border-color: var(--amber); }
+  .chord-alt-label { font-size: 0.6rem; color: var(--amber); font-family: monospace; font-weight: bold; }
+  .chord-alt-note { font-size: 0.58rem; color: var(--text-muted); font-family: monospace; text-align: center; max-width: 64px; line-height: 1.3; }
+  #chordAltClose {
+    width: 100%; margin-top: 12px; font-size: 0.75rem;
+    border-color: var(--border); color: var(--text-muted); background: none;
+    padding: 8px;
+  }
+
 </style>
 </head>
 <body>
@@ -552,6 +597,17 @@
       <button onclick="resolveNamePrompt(false)" style="border-color:var(--border)">Cancel</button>
       <button onclick="resolveNamePrompt(true)" style="border-color:var(--amber);color:var(--amber)">Share ✓</button>
     </div>
+  </div>
+</div>
+
+
+<!-- Chord alternatives modal -->
+<div id="chordAltOverlay" onclick="if(event.target===this)closeChordAlt()">
+  <div id="chordAltPanel">
+    <div id="chordAltTitle">Alternative voicings</div>
+    <div id="chordAltSubtitle">Tap any diagram to see details</div>
+    <div id="chordAltList"></div>
+    <button id="chordAltClose" onclick="closeChordAlt()">Close</button>
   </div>
 </div>
 
@@ -1758,7 +1814,15 @@ function renderChordStrip() {
   const chords = getUniqueChordsFromSong();
   const svgs = chords.map(c => chordSVG(c)).filter(Boolean);
   if (!svgs.length) { strip.classList.remove('visible'); return; }
-  strip.innerHTML = svgs.join('');
+  strip.innerHTML = chords.map((c, i) => {
+    const svg = chordSVG(c);
+    if (!svg) return '';
+    const hasAlts = !!CHORD_ALTS[c];
+    return `<div class="chord-diagram-wrap" onclick="openChordAlt('${c}')" style="cursor:${hasAlts?'pointer':'default'};position:relative">
+      ${svg}
+      ${hasAlts ? '<div style="position:absolute;bottom:2px;right:4px;font-size:8px;color:var(--amber);opacity:0.7">▼</div>' : ''}
+    </div>`;
+  }).filter(Boolean).join('');
   strip.classList.add('visible');
 }
 
@@ -1766,6 +1830,615 @@ function toggleChordDiagrams() {
   showChordDiagrams = !showChordDiagrams;
   renderChordStrip();
   renderCurrentSong(); // re-render to update button state
+}
+
+
+// ── Chord Alternatives ────────────────────────────────────────────
+const CHORD_ALTS = {
+  "F": [
+    {
+      "label": "Easier F",
+      "name": "F",
+      "note": "Skip low E string",
+      "f": [
+        -1,
+        1,
+        1,
+        2,
+        3,
+        3
+      ],
+      "b": 1,
+      "fn": [
+        0,
+        1,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "label": "Fmaj7",
+      "name": "Fmaj7",
+      "note": "No barre, sounds similar",
+      "f": [
+        -1,
+        0,
+        2,
+        2,
+        1,
+        0
+      ],
+      "fn": [
+        0,
+        0,
+        3,
+        4,
+        1,
+        0
+      ]
+    },
+    {
+      "label": "Mini F",
+      "name": "F",
+      "note": "Top 3 strings only",
+      "f": [
+        -1,
+        -1,
+        -1,
+        2,
+        1,
+        1
+      ],
+      "b": 1,
+      "fn": [
+        0,
+        0,
+        0,
+        3,
+        1,
+        1
+      ]
+    }
+  ],
+  "Bm": [
+    {
+      "label": "Easier Bm",
+      "name": "Bm",
+      "note": "Skip low 2 strings",
+      "f": [
+        -1,
+        -1,
+        2,
+        3,
+        4,
+        4
+      ],
+      "b": 2,
+      "fn": [
+        0,
+        0,
+        1,
+        2,
+        4,
+        3
+      ]
+    },
+    {
+      "label": "Bm7",
+      "name": "Bm7",
+      "note": "Softer sound",
+      "f": [
+        -1,
+        2,
+        2,
+        4,
+        4,
+        2
+      ],
+      "b": 2,
+      "fn": [
+        0,
+        1,
+        1,
+        3,
+        4,
+        1
+      ]
+    },
+    {
+      "label": "D instead",
+      "name": "D",
+      "note": "Works in many contexts",
+      "f": [
+        -1,
+        -1,
+        0,
+        2,
+        3,
+        2
+      ],
+      "fn": [
+        0,
+        0,
+        0,
+        1,
+        3,
+        2
+      ]
+    }
+  ],
+  "B": [
+    {
+      "label": "B7",
+      "name": "B7",
+      "note": "Open, much easier",
+      "f": [
+        -1,
+        0,
+        2,
+        1,
+        2,
+        2
+      ],
+      "fn": [
+        0,
+        0,
+        2,
+        1,
+        3,
+        4
+      ]
+    },
+    {
+      "label": "Easier B",
+      "name": "B",
+      "note": "4-string barre",
+      "f": [
+        -1,
+        -1,
+        2,
+        4,
+        4,
+        4
+      ],
+      "b": 2,
+      "fn": [
+        0,
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    }
+  ],
+  "G": [
+    {
+      "label": "G easy",
+      "name": "G",
+      "note": "Easier fingers",
+      "f": [
+        3,
+        2,
+        0,
+        0,
+        0,
+        3
+      ],
+      "fn": [
+        3,
+        1,
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "label": "Gsus2",
+      "name": "Gsus2",
+      "note": "Open, airy sound",
+      "f": [
+        3,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fn": [
+        2,
+        1,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "label": "Gadd9",
+      "name": "Gadd9",
+      "note": "Rich full sound",
+      "f": [
+        3,
+        2,
+        0,
+        2,
+        3,
+        3
+      ],
+      "fn": [
+        3,
+        2,
+        0,
+        1,
+        3,
+        4
+      ]
+    }
+  ],
+  "C": [
+    {
+      "label": "Cadd9",
+      "name": "Cadd9",
+      "note": "Beautiful, easy",
+      "f": [
+        -1,
+        3,
+        0,
+        2,
+        3,
+        0
+      ],
+      "fn": [
+        0,
+        3,
+        0,
+        2,
+        1,
+        0
+      ]
+    },
+    {
+      "label": "Cmaj7",
+      "name": "Cmaj7",
+      "note": "Very easy, dreamy",
+      "f": [
+        -1,
+        0,
+        0,
+        0,
+        2,
+        3
+      ],
+      "fn": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        2
+      ]
+    }
+  ],
+  "Am": [
+    {
+      "label": "Am7",
+      "name": "Am7",
+      "note": "One less finger",
+      "f": [
+        -1,
+        0,
+        2,
+        0,
+        2,
+        0
+      ],
+      "fn": [
+        0,
+        0,
+        2,
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "label": "Asus2",
+      "name": "Asus2",
+      "note": "Easy, open sound",
+      "f": [
+        -1,
+        0,
+        2,
+        2,
+        0,
+        0
+      ],
+      "fn": [
+        0,
+        0,
+        1,
+        2,
+        0,
+        0
+      ]
+    }
+  ],
+  "D": [
+    {
+      "label": "Dsus2",
+      "name": "Dsus2",
+      "note": "Easy, open",
+      "f": [
+        -1,
+        -1,
+        0,
+        2,
+        3,
+        0
+      ],
+      "fn": [
+        0,
+        0,
+        0,
+        1,
+        2,
+        0
+      ]
+    },
+    {
+      "label": "Dmaj7",
+      "name": "Dmaj7",
+      "note": "Jazzier sound",
+      "f": [
+        -1,
+        -1,
+        0,
+        2,
+        2,
+        2
+      ],
+      "fn": [
+        0,
+        0,
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "E": [
+    {
+      "label": "E7",
+      "name": "E7",
+      "note": "Bluesy feel",
+      "f": [
+        0,
+        0,
+        2,
+        0,
+        1,
+        0
+      ],
+      "fn": [
+        0,
+        0,
+        2,
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "label": "Emaj7",
+      "name": "Emaj7",
+      "note": "Softer, dreamy",
+      "f": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        0
+      ],
+      "fn": [
+        0,
+        0,
+        1,
+        2,
+        3,
+        0
+      ]
+    }
+  ],
+  "Em": [
+    {
+      "label": "Em7",
+      "name": "Em7",
+      "note": "One finger only",
+      "f": [
+        0,
+        0,
+        0,
+        0,
+        2,
+        0
+      ],
+      "fn": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ]
+    }
+  ],
+  "A": [
+    {
+      "label": "Asus2",
+      "name": "Asus2",
+      "note": "Very easy",
+      "f": [
+        -1,
+        0,
+        2,
+        2,
+        0,
+        0
+      ],
+      "fn": [
+        0,
+        0,
+        1,
+        2,
+        0,
+        0
+      ]
+    },
+    {
+      "label": "A7",
+      "name": "A7",
+      "note": "Bluesy feel",
+      "f": [
+        -1,
+        0,
+        2,
+        0,
+        2,
+        0
+      ],
+      "fn": [
+        0,
+        0,
+        2,
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "label": "Amaj7",
+      "name": "Amaj7",
+      "note": "Pretty sound",
+      "f": [
+        -1,
+        0,
+        2,
+        1,
+        2,
+        0
+      ],
+      "fn": [
+        0,
+        0,
+        3,
+        1,
+        2,
+        0
+      ]
+    }
+  ]
+};
+
+function openChordAlt(chordName) {
+  const alts = CHORD_ALTS[chordName];
+  if (!alts || !alts.length) return;
+
+  document.getElementById('chordAltTitle').textContent = chordName + ' — Alternative voicings';
+  document.getElementById('chordAltSubtitle').textContent = 'Tap an option to learn more about it';
+
+  const list = document.getElementById('chordAltList');
+  list.innerHTML = alts.map(alt => {
+    // Build inline SVG for this alternative
+    const svg = chordSVGFromData(alt);
+    return `<div class="chord-alt-item">
+      <div class="chord-alt-label">${alt.label}</div>
+      ${svg}
+      <div class="chord-alt-note">${alt.note}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('chordAltOverlay').classList.add('visible');
+}
+
+function closeChordAlt() {
+  document.getElementById('chordAltOverlay').classList.remove('visible');
+}
+
+// Render SVG from raw alt data (same as chordSVG but takes data directly)
+function chordSVGFromData(data) {
+  const rawFrets = data.f || [];
+  // Alt data stored as [E,A,D,G,B,e] low to high — reverse for display
+  const frets = [...rawFrets].reverse();
+  const rawFingers = data.fn || null;
+  const fingers = rawFingers ? [...rawFingers].reverse() : null;
+  const barre = data.b || null;
+  const name = data.name || '';
+
+  const W = 64, H = 90, padL = 10, padT = 20;
+  const sg = 9, fg = 12, nS = 6, nF = 4;
+  const gW = sg * (nS - 1);
+
+  const pressed = frets.filter(f => f > 0);
+  const hasOpen = frets.some(f => f === 0);
+  let ds = 1;
+  if (pressed.length) {
+    const mn = barre ? barre : Math.min(...pressed);
+    ds = (hasOpen && mn <= 4) ? 1 : mn;
+  }
+  const showNut = ds === 1;
+  const nutH = showNut ? 3 : 0;
+
+  let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<text x="${W/2}" y="11" text-anchor="middle" font-size="8.5" font-family="monospace" font-weight="bold" fill="#D4A017">${name}</text>`;
+
+  if (showNut) {
+    s += `<rect x="${padL}" y="${padT}" width="${gW}" height="3" rx="1" fill="#999"/>`;
+  } else {
+    s += `<text x="${padL-1}" y="${padT+fg/2+3}" text-anchor="end" font-size="6.5" fill="#777">${ds}fr</text>`;
+  }
+
+  for (let i = 0; i <= nF; i++) {
+    const y = padT + nutH + i * fg;
+    s += `<line x1="${padL}" y1="${y}" x2="${padL+gW}" y2="${y}" stroke="#444" stroke-width="0.7"/>`;
+  }
+  for (let i = 0; i < nS; i++) {
+    const x = padL + i * sg;
+    s += `<line x1="${x}" y1="${padT+nutH}" x2="${x}" y2="${padT+nutH+nF*fg}" stroke="#555" stroke-width="0.8"/>`;
+  }
+
+  frets.forEach((fret, i) => {
+    const x = padL + i * sg;
+    if (fret === -1) s += `<text x="${x}" y="${padT-2}" text-anchor="middle" font-size="9" fill="#555">×</text>`;
+    else if (fret === 0) s += `<circle cx="${x}" cy="${padT-5}" r="2.5" fill="none" stroke="#555" stroke-width="1"/>`;
+  });
+
+  if (barre && ds <= barre && barre <= ds+3) {
+    const bi = frets.reduce((acc,f,i) => { if(f>=barre) acc.push(i); return acc; }, []);
+    if (bi.length >= 2) {
+      const by = padT + nutH + (barre-ds)*fg + fg/2;
+      s += `<rect x="${padL+bi[0]*sg}" y="${by-4}" width="${(bi[bi.length-1]-bi[0])*sg}" height="8" rx="4" fill="#D4A017"/>`;
+    }
+  }
+
+  frets.forEach((fret, i) => {
+    if (fret > 0 && fret >= ds && fret <= ds+3) {
+      if (barre && fret === barre) return;
+      const x = padL + i * sg;
+      const y = padT + nutH + (fret-ds)*fg + fg/2;
+      s += `<circle cx="${x}" cy="${y}" r="4" fill="#D4A017"/>`;
+      if (fingers && fingers[i]) {
+        s += `<text x="${x}" y="${y+3}" text-anchor="middle" font-size="5.5" fill="#000" font-weight="bold">${fingers[i]}</text>`;
+      }
+    }
+  });
+
+  return s + '</svg>';
 }
 
 // ── Event delegation for song list ───────────────────────────
@@ -1844,7 +2517,7 @@ if('serviceWorker' in navigator){
 </script>
 
 
-<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.04.05-03</div>
+<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.04.05-04</div>
 
 </body>
 </html>
