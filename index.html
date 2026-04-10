@@ -675,11 +675,11 @@ function saveCurrentSettings() {
 function transpose(delta) {
   transposeSteps = ((transposeSteps + delta) % 12 + 12) % 12;
   if (transposeSteps > 6) transposeSteps -= 12;
-  updateTransposeDisplay(); renderCurrentSong(); saveCurrentSettings();
+  updateTransposeDisplay(); renderCurrentSong(); renderChordStrip(); saveCurrentSettings();
 }
 function resetTranspose() {
   transposeSteps = 0;
-  updateTransposeDisplay(); renderCurrentSong(); saveCurrentSettings();
+  updateTransposeDisplay(); renderCurrentSong(); renderChordStrip(); saveCurrentSettings();
 }
 function updateTransposeDisplay() {
   document.getElementById('transposeDisplay').textContent =
@@ -815,6 +815,7 @@ function selectSong(id) {
   document.getElementById('emptyState').style.display = 'none';
   document.getElementById('songView').style.display = 'block';
   renderCurrentSong();
+  renderChordStrip();
   renderSongList();
   // Don't steal focus from community tab when loading a community song
   const activeTab = document.querySelector('.tab-btn.active')?.id;
@@ -2868,7 +2869,7 @@ if('serviceWorker' in navigator){
 </script>
 
 
-<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">v2026.04.05-05</div>
+<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">2026-04-05 v06</div>
 
 </body>
 </html>
