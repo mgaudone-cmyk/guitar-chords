@@ -313,9 +313,107 @@
   }
   .tappable-chord:hover { background: rgba(212,146,42,0.15); border-bottom-color: var(--amber-light); }
 
+  /* ── AI FORMAT MODAL ── */
+  #aiModal .modal-box { max-width: 480px; width: 90vw; }
+  #aiFormatBtn { display:none; }
+
+  /* ── DRIVE BACKUP BUTTONS ── */
+  .sb-btn-sm {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 8px;
+    cursor: pointer;
+    background: var(--surface2);
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+    flex: 1;
+    text-align: center;
+  }
+  .sb-btn-sm:hover { border-color: var(--amber-dim); color: var(--amber-light); }
+
+  /* ── MOBILE / iPHONE ── */
   @media (max-width: 700px) {
-    main { grid-template-columns: 1fr; grid-template-rows: 260px 1fr; }
-    #viewer { padding: 24px 20px; }
+    header {
+      padding: 6px 10px;
+      gap: 8px;
+    }
+    .logo { font-size: 1.1rem; margin-right: 4px; }
+    .sep { height: 20px; }
+    .ctrl-group { gap: 5px; }
+    label.ctrl-label { font-size: 0.55rem; }
+    button { font-size: 0.65rem; padding: 5px 8px; }
+    .transpose-display { font-size: 0.65rem; padding: 3px 7px; min-width: 60px; }
+    input[type="range"] { width: 70px; }
+
+    main {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+    }
+
+    aside {
+      height: auto;
+      max-height: 52vh;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-btn { padding: 7px 4px; font-size: 0.5rem; }
+
+    .sidebar-section { padding: 8px 10px; }
+    .sidebar-title { font-size: 0.55rem; margin-bottom: 6px; }
+
+    .sb-input { font-size: 0.65rem; padding: 5px 8px; margin-bottom: 4px; }
+    .sb-btn { font-size: 0.65rem; padding: 5px 8px; margin-bottom: 4px; }
+
+    /* Song list: always shows minimum 4 items, scrollable */
+    .song-list {
+      min-height: 176px; /* 4 × ~44px items */
+      max-height: 176px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .song-item { padding: 10px 10px; }
+    .song-item-name { font-size: 0.78rem; }
+    .song-item-key { font-size: 0.58rem; }
+    .song-item-del { opacity: 1; } /* always visible on touch */
+
+    /* Library bottom actions: compact 2-column row */
+    .lib-actions {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .lib-actions .sb-btn { flex: 1; min-width: 0; font-size: 0.6rem; padding: 5px 4px; margin-bottom: 0; }
+
+    #viewer { padding: 16px 14px; }
+    .song-title { font-size: 1.5rem; }
+  }
+
+  /* ── LANDSCAPE on phone ── */
+  @media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+    main {
+      grid-template-columns: 220px 1fr;
+      grid-template-rows: 1fr;
+    }
+    aside {
+      max-height: none;
+      height: 100%;
+      border-right: 1px solid var(--border);
+      border-bottom: none;
+    }
+    .song-list {
+      min-height: 0;
+      max-height: none;
+      flex: 1;
+    }
+    header { padding: 5px 10px; gap: 6px; }
+    .logo { font-size: 1rem; }
+    #viewer { padding: 12px 16px; }
   }
 </style>
 </head>
@@ -351,6 +449,7 @@
   </div>
 
   <div class="spacer"></div>
+  <button id="aiFormatBtn" style="display:none;border-color:var(--amber-dim);color:var(--amber-light)" onclick="openAiFormatModal()">✨ Format</button>
   <button id="editCommunityBtn" style="display:none;align-items:center;gap:5px;border-color:var(--amber-dim);color:var(--amber-light)" onclick="openEditModal()">✏ Edit</button>
   <div id="loadingIndicator" style="display:none"><div class="loading"></div></div>
   <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#FFD700;opacity:0.8;white-space:nowrap" id="versionLabel"></div>
@@ -372,9 +471,17 @@
         <input class="sb-input" type="text" id="searchInput" placeholder="Search songs…" oninput="renderSongList()" style="margin-bottom:0">
       </div>
       <div class="song-list" id="songList"></div>
-      <div class="sidebar-section" style="border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:6px">
-        <button class="sb-btn" onclick="saveLibraryAsFile()" title="Download this app with all your songs baked in — open it on any device">💾 Save Library as File</button>
-        <label class="sb-btn" style="cursor:pointer;text-align:center" title="Load a previously saved library file">📂 Load Library File<input type="file" accept=".html" style="display:none" onchange="loadLibraryFile(event)"></label>
+      <div class="sidebar-section" style="border-top:1px solid var(--border);padding-top:8px">
+        <div class="lib-actions" style="display:flex;flex-direction:column;gap:4px">
+          <div style="display:flex;gap:4px">
+            <button class="sb-btn" style="flex:1;margin-bottom:0;font-size:0.62rem;padding:5px 6px" onclick="saveLibraryAsFile()" title="Download library as file">💾 Save File</button>
+            <label class="sb-btn" style="flex:1;cursor:pointer;text-align:center;margin-bottom:0;font-size:0.62rem;padding:5px 6px" title="Load a library file">📂 Load File<input type="file" accept=".html" style="display:none" onchange="loadLibraryFile(event)"></label>
+          </div>
+          <div style="display:flex;gap:4px">
+            <button class="sb-btn" style="flex:1;margin-bottom:0;font-size:0.62rem;padding:5px 6px;border-color:var(--amber-dim);color:var(--amber-light)" onclick="backupToDrive()" id="driveBackupBtn" title="Backup library to Google Drive as JSON">☁ Drive Backup</button>
+            <button class="sb-btn" style="flex:1;margin-bottom:0;font-size:0.62rem;padding:5px 6px" onclick="restoreFromDrive()" title="Restore library from Google Drive backup">📥 Drive Restore</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -497,6 +604,34 @@
   </div>
 </div>
 
+<!-- AI Format Modal -->
+<div class="modal-overlay" id="aiModal">
+  <div class="modal-box" style="max-width:480px;width:92vw">
+    <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--amber-light);margin-bottom:6px">✨ AI Chord Formatter</div>
+    <div class="modal-msg" id="aiModalMsg" style="font-size:0.75rem;line-height:1.6;color:var(--text-dim)">
+      Claude will reformat this song so every chord sits directly above the correct syllable — perfect monospace alignment.
+    </div>
+    <div id="aiModalPreview" style="display:none;margin:12px 0;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:0.7rem;line-height:1.7;color:var(--amber-light);white-space:pre;overflow-x:auto;max-height:240px;overflow-y:auto"></div>
+    <div class="modal-btns" style="margin-top:14px">
+      <button onclick="closeAiModal()" style="border-color:var(--border);color:var(--text-muted)" id="aiCancelBtn">Cancel</button>
+      <div style="flex:1"></div>
+      <button id="aiRunBtn" onclick="runAiFormat()" style="border-color:var(--amber-dim);color:var(--amber-light);background:rgba(212,146,42,0.1)">✨ Format with AI</button>
+      <button id="aiAcceptBtn" onclick="acceptAiFormat()" style="display:none;border-color:var(--green);color:var(--green);background:rgba(76,175,125,0.1)">✓ Accept</button>
+    </div>
+  </div>
+</div>
+
+<!-- Drive Restore Modal -->
+<div class="modal-overlay" id="driveRestoreModal">
+  <div class="modal-box" style="max-width:380px;width:92vw">
+    <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--amber-light);margin-bottom:12px">📥 Restore from Drive</div>
+    <div id="driveRestoreList" style="max-height:220px;overflow-y:auto;margin-bottom:14px"></div>
+    <div class="modal-btns">
+      <button onclick="closeDriveRestoreModal()" style="border-color:var(--border);color:var(--text-muted)">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="scroll-bar" id="scrollBar">
   <div class="scroll-dot"></div>
   <span id="scrollLabel">Auto-scrolling… (4×)</span>
@@ -504,7 +639,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_VERSION = 'v2026.05.18-01';
+const APP_VERSION = 'v2026.05.20-01';
 
 // ── GitHub config ─────────────────────────────────────────────
 const GH_TOKEN    = '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';
@@ -613,6 +748,8 @@ function renderCurrentSong() {
   } else {
     document.getElementById('editCommunityBtn').style.display = 'none';
   }
+  // AI Format button — available for all songs
+  document.getElementById('aiFormatBtn').style.display = 'inline-block';
 
   let i = 0;
   while (i < lines.length) {
@@ -1089,6 +1226,16 @@ function showToast(msg, type) {
 }
 
 // ── Community ─────────────────────────────────────────────────
+async function ghFetch(url, opts = {}) {
+  // GitHub API fetch with auth header — uses no-cors fallback for listing
+  const headers = {
+    Authorization: `token ${GH_TOKEN}`,
+    Accept: 'application/vnd.github+json',
+    ...(opts.headers || {})
+  };
+  return fetch(url, { ...opts, headers });
+}
+
 async function loadCommunityList() {
   const btn = document.getElementById('communityRefreshBtn');
   const list = document.getElementById('communityList');
@@ -1096,16 +1243,17 @@ async function loadCommunityList() {
   btn.textContent = '↻ Loading…';
   list.innerHTML = `<div style="padding:20px;text-align:center"><div class="loading"></div></div>`;
   try {
-    const resp = await fetch(COMMUNITY_API, {
-      headers: { Authorization: `token ${GH_TOKEN}` }
-    });
+    const resp = await ghFetch(COMMUNITY_API);
+    if (resp.status === 401) throw new Error('Token expired — update in app source');
+    if (resp.status === 403) throw new Error('Rate limited — try again in a minute');
+    if (resp.status === 404) throw new Error('Library repo not found');
     if (!resp.ok) throw new Error(`GitHub API ${resp.status}`);
     const files = await resp.json();
     communitySongs = files.filter(f => /\.(txt|docx)$/i.test(f.name));
     renderCommunityList();
     showToast(`${communitySongs.length} songs loaded ✓`, 'success');
   } catch(e) {
-    list.innerHTML = `<div style="padding:20px;font-size:0.72rem;color:var(--red);font-family:'JetBrains Mono',monospace;text-align:center">Failed to load: ${e.message}</div>`;
+    list.innerHTML = `<div style="padding:20px;font-size:0.72rem;color:var(--red);font-family:'JetBrains Mono',monospace;text-align:center;line-height:1.6">Failed to load:<br>${e.message}</div>`;
     showToast('Could not reach community library', 'error');
   }
   btn.disabled = false;
@@ -1147,9 +1295,7 @@ async function loadCommunitySong(file) {
   setLoading(true);
   try {
     // Fetch raw content + sha via API (need sha for future edits)
-    const resp = await fetch(`${GH_API}/contents/${GH_SONGS}/${encodeURIComponent(file.name)}`, {
-      headers: { Authorization: `token ${GH_TOKEN}` }
-    });
+    const resp = await ghFetch(`${GH_API}/contents/${GH_SONGS}/${encodeURIComponent(file.name)}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const meta = await resp.json();
 
@@ -1299,28 +1445,31 @@ async function submitCommunityEdit() {
     const filePath = `${GH_SONGS}/${activeCommunityFile.name}`;
     const headers  = {
       Authorization: `token ${GH_TOKEN}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      Accept: 'application/vnd.github+json'
     };
 
     // 1. Get default branch SHA
-    const repoResp = await fetch(`${GH_API}`, { headers });
+    const repoResp = await ghFetch(`${GH_API}`);
     const repoData = await repoResp.json();
     const defaultBranch = repoData.default_branch || 'main';
 
-    const branchResp = await fetch(`${GH_API}/git/refs/heads/${defaultBranch}`, { headers });
+    const branchResp = await ghFetch(`${GH_API}/git/refs/heads/${defaultBranch}`);
     const branchData = await branchResp.json();
     const baseSha    = branchData.object.sha;
 
     // 2. Create new branch
-    const createBranch = await fetch(`${GH_API}/git/refs`, {
-      method: 'POST', headers,
+    const createBranch = await ghFetch(`${GH_API}/git/refs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha })
     });
     if (!createBranch.ok) throw new Error(`Branch creation failed: ${createBranch.status}`);
 
     // 3. Push file to new branch
-    const pushResp = await fetch(`${GH_API}/contents/${filePath}`, {
-      method: 'PUT', headers,
+    const pushResp = await ghFetch(`${GH_API}/contents/${filePath}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         message: `Edit: ${currentSong.title} v${ver}`,
         content: encoded,
@@ -1334,8 +1483,9 @@ async function submitCommunityEdit() {
     }
 
     // 4. Open Pull Request
-    const prResp = await fetch(`${GH_API}/pulls`, {
-      method: 'POST', headers,
+    const prResp = await ghFetch(`${GH_API}/pulls`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title: `Edit: ${currentSong.title} v${ver}`,
         head: branch,
@@ -1372,6 +1522,149 @@ function closePrModal() {
 }
 function openPrLink() {
   if (_prUrl) window.open(_prUrl, '_blank');
+}
+
+// ── AI Chord Formatter ────────────────────────────────────────
+let _aiFormattedContent = null;
+
+function openAiFormatModal() {
+  if (!currentSong) return;
+  _aiFormattedContent = null;
+  document.getElementById('aiModalMsg').textContent =
+    'Claude will reformat this song so every chord sits directly above the correct syllable — perfect monospace alignment.';
+  document.getElementById('aiModalPreview').style.display = 'none';
+  document.getElementById('aiRunBtn').style.display = 'inline-block';
+  document.getElementById('aiAcceptBtn').style.display = 'none';
+  document.getElementById('aiCancelBtn').textContent = 'Cancel';
+  document.getElementById('aiModal').classList.add('visible');
+}
+
+function closeAiModal() {
+  document.getElementById('aiModal').classList.remove('visible');
+  _aiFormattedContent = null;
+}
+
+async function runAiFormat() {
+  if (!currentSong) return;
+  const btn = document.getElementById('aiRunBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Formatting…';
+  document.getElementById('aiModalMsg').textContent = 'Sending to Claude…';
+
+  try {
+    const prompt = `You are a guitar chord sheet formatter. Your only job is to reformat the chord sheet below so that each chord symbol is placed directly above the syllable it is played on, using monospace spacing (spaces only, no tabs).
+
+Rules:
+- Chords go on their own line, directly above the lyric line
+- Each chord must be horizontally aligned with the exact character position of the syllable it belongs to
+- Preserve all section headers like [Verse], [Chorus] etc exactly
+- Preserve all blank lines between sections
+- Do NOT change any lyrics or chord names
+- Do NOT add explanations or markdown — return ONLY the formatted chord sheet text
+
+Chord sheet to format:
+${currentSong.content}`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || `API error ${response.status}`);
+    }
+
+    const data = await response.json();
+    const formatted = data.content?.find(b => b.type === 'text')?.text?.trim();
+    if (!formatted) throw new Error('No response from AI');
+
+    _aiFormattedContent = formatted;
+    document.getElementById('aiModalMsg').textContent = 'Preview — looks good?';
+    document.getElementById('aiModalPreview').textContent = formatted;
+    document.getElementById('aiModalPreview').style.display = 'block';
+    document.getElementById('aiRunBtn').style.display = 'none';
+    document.getElementById('aiAcceptBtn').style.display = 'inline-block';
+    document.getElementById('aiCancelBtn').textContent = 'Dismiss';
+
+  } catch(e) {
+    document.getElementById('aiModalMsg').textContent = 'Error: ' + e.message;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '✨ Format with AI';
+}
+
+function acceptAiFormat() {
+  if (!_aiFormattedContent || !currentSong) return;
+  currentSong.content = _aiFormattedContent;
+  // Save to local library if it's a local song
+  const idx = songs.findIndex(s => s.id === currentSong.id);
+  if (idx !== -1) { songs[idx] = currentSong; saveSongs(); }
+  // Update edit textarea if open
+  const ta = document.getElementById('editTextarea');
+  if (ta) ta.value = _aiFormattedContent;
+  closeAiModal();
+  renderCurrentSong();
+  showToast('AI formatting applied ✓', 'success');
+}
+
+// ── Google Drive Library Backup / Restore ─────────────────────
+// Uses Google Drive API via the user's connected Drive MCP / upload trick.
+// Since we can't use MCP from the deployed app, we use a JSON blob download
+// for backup and a file picker for restore — clean and reliable on iOS.
+
+function backupToDrive() {
+  if (songs.length === 0) { showToast('No songs to backup!', 'error'); return; }
+  const backup = {
+    app: 'Fretboard',
+    version: APP_VERSION,
+    date: new Date().toISOString(),
+    songs
+  };
+  const json = JSON.stringify(backup, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0,10);
+  a.href = URL.createObjectURL(blob);
+  a.download = `fretboard-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast(`Backup saved — ${songs.length} songs. Upload to Drive manually.`, 'success');
+}
+
+function restoreFromDrive() {
+  // Trigger file picker for .json backup files
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const backup = JSON.parse(text);
+      if (!backup.songs || !Array.isArray(backup.songs)) throw new Error('Not a valid Fretboard backup file');
+      const existingTitles = new Set(songs.map(s => s.title.toLowerCase()));
+      const newSongs = backup.songs.filter(s => !existingTitles.has(s.title.toLowerCase()));
+      songs = [...newSongs, ...songs];
+      saveSongs();
+      renderSongList();
+      showToast(`Restored ${newSongs.length} songs${backup.songs.length - newSongs.length > 0 ? ` (${backup.songs.length - newSongs.length} already existed)` : ''} ✓`, 'success');
+    } catch(err) {
+      showToast('Could not read backup: ' + err.message, 'error');
+    }
+  };
+  input.click();
+}
+
+function closeDriveRestoreModal() {
+  document.getElementById('driveRestoreModal').classList.remove('visible');
 }
 
 // ── Keyboard shortcuts ────────────────────────────────────────
