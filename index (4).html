@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fretboard – Guitar Sheet App</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0c0a;
+    --surface: #1a1714;
+    --surface2: #242018;
+    --border: #3a3328;
+    --amber: #d4922a;
+    --amber-light: #f0b84a;
+    --amber-dim: #8a5f1a;
+    --text: #e8dcc8;
+    --text-dim: #8a7d6a;
+    --text-muted: #5a5040;
+    --green: #4caf7d;
+    --red: #cf6679;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Spectral', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    margin-right: 8px;
+  }
+  .logo span { font-style: italic; color: var(--amber-light); }
+  .sep { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
+
+  .ctrl-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  label.ctrl-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  button {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface2);
+    color: var(--text);
+    letter-spacing: 0.05em;
+  }
+  button:hover { border-color: var(--amber-dim); color: var(--amber-light); }
+  button.active { background: var(--amber); color: #0e0c0a; border-color: var(--amber); }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 110px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    padding: 0;
+    border: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--amber);
+    cursor: pointer;
+  }
+
+  .spacer { flex: 1; }
+
+  .transpose-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--amber-light);
+    min-width: 80px;
+    text-align: center;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: 1fr;
+    overflow: hidden;
+    min-height: 0;
+    height: 0; /* force grid children to respect overflow */
+  }
+
+  /* ── SIDEBAR ── */
+  aside {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .tab-bar { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .tab-btn {
+    flex: 1; padding: 10px;
+    border: none; border-radius: 0;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+  }
+  .tab-btn.active { color: var(--amber); background: rgba(212,146,42,0.07); border-bottom: 2px solid var(--amber); }
+  .tab-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
+  .tab-panel.active { display: flex; }
+
+  .sidebar-section {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .sidebar-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .song-list { flex: 1; overflow-y: auto; padding: 8px; min-height: 0; }
+  .song-list::-webkit-scrollbar { width: 4px; }
+  .song-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .song-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 12px; border-radius: 6px; cursor: pointer;
+    border: 1px solid transparent; transition: all 0.15s; margin-bottom: 2px;
+  }
+  .song-item:hover { background: var(--surface2); border-color: var(--border); }
+  .song-item.active { background: rgba(212,146,42,0.12); border-color: var(--amber-dim); }
+  .song-item-icon { font-size: 1rem; flex-shrink: 0; }
+  .song-item-info { flex: 1; min-width: 0; }
+  .song-item-name { font-size: 0.82rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .song-item-key { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--text-dim); }
+  .song-item-del { opacity: 0; background: none; border: none; color: var(--red); font-size: 0.9rem; padding: 2px 6px; cursor: pointer; border-radius: 3px; }
+  .song-item:hover .song-item-del { opacity: 1; }
+
+  .sb-input {
+    width: 100%; padding: 6px 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; outline: none;
+    margin-bottom: 6px;
+  }
+  .sb-input:focus { border-color: var(--amber-dim); }
+  .sb-row { display: flex; gap: 6px; margin-bottom: 6px; }
+  .sb-row .sb-input { margin-bottom: 0; }
+  textarea.sb-input { min-height: 120px; resize: vertical; line-height: 1.6; }
+  .sb-btn { width: 100%; margin-bottom: 6px; }
+
+  .drive-hint { font-size: 0.65rem; color: var(--text-muted); line-height: 1.6; font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
+  .drive-hint strong { color: var(--amber-dim); }
+
+  /* ── VIEWER ── */
+  #viewer {
+    overflow-y: auto;
+    padding: 48px 64px;
+    position: relative;
+    height: 100%;
+    min-height: 0;
+    box-sizing: border-box;
+  }
+  #viewer::-webkit-scrollbar { width: 5px; }
+  #viewer::-webkit-scrollbar-track { background: transparent; }
+  #viewer::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .song-header { margin-bottom: 36px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+  .song-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 700; color: var(--amber-light); margin-bottom: 6px; }
+  .song-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-dim); display: flex; gap: 20px; flex-wrap: wrap; }
+  .song-meta span { display: flex; align-items: center; gap: 5px; }
+
+  /* All monospace so chord spacing aligns exactly with lyrics */
+  .chord-sheet { font-family: 'JetBrains Mono', monospace; font-size: 1em; }
+
+  .line-pair { display: block; margin-bottom: 0.1em; }
+  .chord-line {
+    display: block; color: var(--amber-light); font-weight: 600;
+    letter-spacing: 0.04em; white-space: pre; line-height: 1.5;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .lyric-line {
+    display: block; color: var(--text); white-space: pre; line-height: 1.6;
+    font-family: 'JetBrains Mono', monospace; margin-bottom: 0.9em;
+  }
+  .lyric-only {
+    display: block; color: var(--text); white-space: pre; line-height: 1.6;
+    font-family: 'JetBrains Mono', monospace; margin-bottom: 0.2em;
+  }
+  .blank-line { display: block; height: 0.8em; }
+  .section-header {
+    display: block; color: var(--amber-dim); font-size: 0.7rem;
+    text-transform: uppercase; letter-spacing: 0.2em;
+    margin-top: 1.8em; margin-bottom: 0.5em;
+    font-family: 'JetBrains Mono', monospace; font-weight: 600;
+    border-left: 2px solid var(--amber-dim); padding-left: 8px;
+  }
+
+  .empty-state {
+    display: flex; flex-direction: column; height: 100%;
+    align-items: center; justify-content: center;
+    gap: 16px; color: var(--text-muted); text-align: center;
+  }
+  .empty-guitar { font-size: 4rem; opacity: 0.3; }
+  .empty-state h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-style: italic; color: var(--text-dim); }
+  .empty-state p { font-size: 0.82rem; font-family: 'JetBrains Mono', monospace; max-width: 300px; line-height: 1.6; }
+
+  .scroll-bar {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+    color: var(--text-dim); display: none; align-items: center; gap: 10px; z-index: 200;
+  }
+  .scroll-bar.visible { display: flex; }
+  .scroll-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 20px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+    color: var(--text); z-index: 300; transition: transform 0.3s; pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  .loading { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--amber); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+
+  /* ── CONFIRM MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500; opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  }
+  .modal-overlay.visible { opacity: 1; pointer-events: all; }
+  .modal-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 24px 28px; min-width: 260px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .modal-msg { font-size: 0.82rem; color: var(--text); margin-bottom: 18px; line-height: 1.5; }
+  .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+
+  .tappable-chord {
+    cursor: pointer;
+    border-bottom: 1px dashed var(--amber-dim);
+    border-radius: 2px;
+    transition: background 0.1s;
+  }
+  .tappable-chord:hover { background: rgba(212,146,42,0.15); border-bottom-color: var(--amber-light); }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; grid-template-rows: 260px 1fr; }
+    #viewer { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Fret<span>board</span></div>
+  <div class="sep"></div>
+
+  <div class="ctrl-group">
+    <label class="ctrl-label">Transpose</label>
+    <button onclick="transpose(-1)">−1</button>
+    <div class="transpose-display" id="transposeDisplay">Original</div>
+    <button onclick="transpose(+1)">+1</button>
+    <button onclick="resetTranspose()" style="font-size:0.65rem">Reset</button>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="ctrl-group">
+    <label class="ctrl-label">Scroll</label>
+    <button id="scrollBtn" onclick="toggleScroll()">▶ Auto</button>
+    <input type="range" id="scrollSpeed" min="1" max="20" value="4" title="Scroll speed" oninput="updateScrollSpeed()">
+    <label class="ctrl-label" id="speedLabel">4×</label>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="ctrl-group">
+    <label class="ctrl-label">Size</label>
+    <button onclick="changeFontSize(-1)">A−</button>
+    <button onclick="changeFontSize(1)">A+</button>
+  </div>
+
+  <div class="spacer"></div>
+  <button id="editCommunityBtn" style="display:none;align-items:center;gap:5px;border-color:var(--amber-dim);color:var(--amber-light)" onclick="openEditModal()">✏ Edit</button>
+  <div id="loadingIndicator" style="display:none"><div class="loading"></div></div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#FFD700;opacity:0.8;white-space:nowrap" id="versionLabel"></div>
+</header>
+
+<main>
+  <aside>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('library')" id="tab-library">📁 Library</button>
+      <button class="tab-btn" onclick="switchTab('drive')" id="tab-drive">☁ Drive</button>
+      <button class="tab-btn" onclick="switchTab('manual')" id="tab-manual">✏ Manual</button>
+      <button class="tab-btn" onclick="switchTab('community')" id="tab-community">🌐 Community</button>
+    </div>
+
+    <!-- LIBRARY -->
+    <div class="tab-panel active" id="panel-library">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Your Songs</div>
+        <input class="sb-input" type="text" id="searchInput" placeholder="Search songs…" oninput="renderSongList()" style="margin-bottom:0">
+      </div>
+      <div class="song-list" id="songList"></div>
+      <div class="sidebar-section" style="border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:6px">
+        <button class="sb-btn" onclick="saveLibraryAsFile()" title="Download this app with all your songs baked in — open it on any device">💾 Save Library as File</button>
+        <label class="sb-btn" style="cursor:pointer;text-align:center" title="Load a previously saved library file">📂 Load Library File<input type="file" accept=".html" style="display:none" onchange="loadLibraryFile(event)"></label>
+      </div>
+    </div>
+
+    <!-- DRIVE -->
+    <div class="tab-panel" id="panel-drive" style="overflow-y:auto">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Load from Google Drive</div>
+        <div class="drive-hint">
+          <strong>① Auto-load:</strong> Share your doc (Anyone with link → Viewer), paste the link below.<br><br>
+          <strong>② Manual paste:</strong> Open doc → Select All → Copy → paste in the box that appears.
+        </div>
+        <div class="sb-row">
+          <input class="sb-input" type="text" id="driveSongTitle" placeholder="Song title (optional)">
+          <input class="sb-input" type="text" id="driveKey" placeholder="Key" style="width:60px;flex-shrink:0">
+        </div>
+        <div class="sb-row">
+          <input class="sb-input" type="text" id="driveUrl" placeholder="Paste Google Docs link…" style="margin-bottom:0">
+          <button onclick="loadFromDrive()" id="driveLoadBtn" style="white-space:nowrap">Load</button>
+        </div>
+        <div id="driveFallback" style="display:none;margin-top:10px">
+          <div class="drive-hint" style="color:var(--red)">⚠ Auto-load blocked. Paste content below:</div>
+          <textarea class="sb-input" id="drivePasteArea" placeholder="Paste your Google Doc text here…"></textarea>
+          <button class="sb-btn" onclick="loadFromPaste()">+ Add Pasted Content</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANUAL -->
+    <div class="tab-panel" id="panel-manual" style="overflow-y:auto">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Add Song Manually</div>
+        <div class="sb-row">
+          <input class="sb-input" type="text" id="manTitle" placeholder="Song title">
+          <input class="sb-input" type="text" id="manKey" placeholder="Key" style="width:60px;flex-shrink:0">
+        </div>
+        <textarea class="sb-input" id="manContent" placeholder="Paste chords + lyrics here.&#10;&#10;Format: chord line above lyric line.&#10;&#10;Example:&#10;[Verse]&#10;G        Em&#10;Amazing grace how sweet the sound&#10;C        G&#10;That saved a wretch like me"></textarea>
+        <button class="sb-btn" onclick="addManualSong()">+ Add to Library</button>
+        <div class="sidebar-title" style="margin-top:12px">Open a file</div>
+        <input type="file" id="fileInput" accept=".txt,.cho,.crd,.docx,.rtf" style="display:none" onchange="loadFile(event)">
+        <button class="sb-btn" onclick="document.getElementById('fileInput').click()">📂 Open .txt / .docx / .rtf…</button>
+      </div>
+    </div>
+
+    <!-- COMMUNITY -->
+    <div class="tab-panel" id="panel-community" style="overflow:hidden;display:flex;flex-direction:column;">
+      <div class="sidebar-section" style="flex-shrink:0">
+        <div class="sidebar-title">Community Songs</div>
+        <input class="sb-input" type="text" id="communitySearch" placeholder="Search community…" oninput="filterCommunityList()" style="margin-bottom:6px">
+        <button class="sb-btn" onclick="loadCommunityList()" id="communityRefreshBtn">↻ Refresh</button>
+      </div>
+      <div class="song-list" id="communityList" style="flex:1;min-height:0">
+        <div style="padding:20px;font-size:0.72rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;text-align:center">
+          Click Refresh to load community songs.
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div id="viewer">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-guitar">🎸</div>
+      <h2>No song selected</h2>
+      <p>Add a song from the Manual tab, load from Google Drive, or open a file.</p>
+    </div>
+    <div id="songView" style="display:none"></div>
+  </div>
+</main>
+
+
+<!-- Confirm modal (replaces confirm() which is blocked in sandboxed iframes) -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-msg" id="confirmMsg">Are you sure?</div>
+    <div class="modal-btns">
+      <button onclick="resolveConfirm(false)" style="border-color:var(--border)">Cancel</button>
+      <button onclick="resolveConfirm(true)" style="border-color:var(--red);color:var(--red)" id="confirmOkBtn">Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal" style="align-items:flex-end;padding:0">
+  <div id="editModalBox" style="background:var(--surface);border:1px solid var(--border);border-radius:12px 12px 0 0;width:100%;max-width:900px;display:flex;flex-direction:column;max-height:90vh">
+    <div style="display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border);flex-shrink:0">
+      <span style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--amber-light);flex:1" id="editModalTitle">Edit Song</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--text-muted)" id="editModalVersion"></span>
+      <button onclick="closeEditModal()" style="border:none;background:none;color:var(--text-muted);font-size:1.1rem;padding:2px 6px">✕</button>
+    </div>
+    <textarea id="editTextarea" style="flex:1;min-height:300px;max-height:60vh;background:var(--surface2);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem;line-height:1.7;padding:16px 18px;border:none;outline:none;resize:none;overflow-y:auto"></textarea>
+    <div style="display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--border);flex-shrink:0;flex-wrap:wrap">
+      <button onclick="closeEditModal()" style="border-color:var(--border);color:var(--text-muted)">Cancel</button>
+      <div style="flex:1"></div>
+      <button onclick="submitCommunityEdit()" id="editSubmitBtn" style="border-color:var(--amber-dim);color:var(--amber-light);background:rgba(212,146,42,0.1)">
+        📤 Save to Community
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Chord-click inline edit popup -->
+<div id="chordPopup" style="display:none;position:fixed;z-index:600;background:var(--surface);border:1px solid var(--amber-dim);border-radius:8px;padding:10px 14px;box-shadow:0 4px 20px rgba(0,0,0,0.5)">
+  <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);margin-bottom:6px">Change chord</div>
+  <div style="display:flex;gap:6px;align-items:center">
+    <input id="chordPopupInput" style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;font-weight:600;color:var(--amber-light);background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:4px 8px;width:80px;outline:none" onkeydown="chordPopupKey(event)">
+    <button onclick="applyChordPopup()" style="border-color:var(--amber-dim);color:var(--amber-light)">✓</button>
+    <button onclick="closeChordPopup()" style="border-color:var(--border);color:var(--text-muted)">✕</button>
+  </div>
+</div>
+
+<!-- PR success modal -->
+<div class="modal-overlay" id="prModal">
+  <div class="modal-box" style="max-width:340px">
+    <div style="font-size:1.4rem;margin-bottom:10px;text-align:center">✅</div>
+    <div class="modal-msg" id="prModalMsg">Edit submitted!</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-muted);margin-bottom:16px;line-height:1.6" id="prModalSub"></div>
+    <div class="modal-btns">
+      <button onclick="closePrModal()" style="border-color:var(--border)">Close</button>
+      <button id="prModalLink" onclick="openPrLink()" style="border-color:var(--amber-dim);color:var(--amber-light)">View PR on GitHub</button>
+    </div>
+  </div>
+</div>
+
+<div class="scroll-bar" id="scrollBar">
+  <div class="scroll-dot"></div>
+  <span id="scrollLabel">Auto-scrolling… (4×)</span>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const APP_VERSION = 'v2026.05.18-01';
+
+// ── GitHub config ─────────────────────────────────────────────
+const GH_TOKEN    = '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';
+const GH_OWNER    = 'mgaudone-cmyk';
+const GH_REPO     = 'guitar-chords-library';
+const GH_SONGS    = 'guitar-chords-library/songs';
+const GH_API      = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}`;
+const COMMUNITY_API = `${GH_API}/contents/${GH_SONGS}`;
+
+const NOTES      = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const NOTES_FLAT = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+
+let songs        = JSON.parse(localStorage.getItem('fretboard_songs') || '[]');
+let currentSong  = null;
+let transposeSteps = 0;
+let scrollRAF    = null;
+let scrolling    = false;
+let scrollSpeed  = 4;
+let fontSize     = 16;
+let communitySongs = [];
+let activeCommunityFile = null;
+
+// ── Transpose ────────────────────────────────────────────────
+function noteIndex(n) {
+  let i = NOTES.indexOf(n);
+  if (i === -1) i = NOTES_FLAT.indexOf(n);
+  return i;
+}
+function transposeNote(note, steps) {
+  const i = noteIndex(note);
+  if (i === -1) return note;
+  return NOTES[((i + steps) % 12 + 12) % 12];
+}
+function transposeChordLine(line, steps) {
+  if (steps === 0) return line;
+  return line.replace(/[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d)?/g, ch => {
+    if (!/^[A-G]/.test(ch)) return ch;
+    return ch.replace(/^([A-G][b#]?)(.*?)(\/[A-G][b#]?)?$/, (_, root, mod, bass) =>
+      transposeNote(root, steps) + mod + (bass ? '/' + transposeNote(bass.slice(1), steps) : '')
+    );
+  });
+}
+
+function saveCurrentSettings() {
+  if (!currentSong) return;
+  currentSong.settings = { transpose: transposeSteps, scrollSpeed, fontSize };
+  const idx = songs.findIndex(s => s.id === currentSong.id);
+  if (idx !== -1) songs[idx] = currentSong;
+  saveSongs();
+}
+
+function transpose(delta) {
+  transposeSteps = ((transposeSteps + delta) % 12 + 12) % 12;
+  if (transposeSteps > 6) transposeSteps -= 12;
+  updateTransposeDisplay(); renderCurrentSong(); saveCurrentSettings();
+}
+function resetTranspose() {
+  transposeSteps = 0;
+  updateTransposeDisplay(); renderCurrentSong(); saveCurrentSettings();
+}
+function updateTransposeDisplay() {
+  document.getElementById('transposeDisplay').textContent =
+    transposeSteps === 0 ? 'Original' : (transposeSteps > 0 ? '+' : '') + transposeSteps + ' st';
+}
+
+// ── Line parsing ─────────────────────────────────────────────
+function isChordLine(line) {
+  const t = line.trim();
+  if (!t || t.length > 100) return false;
+  const words = t.split(/\s+/);
+  const pat = /^[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d|aug|dim)?$/;
+  const hits = words.filter(w => pat.test(w));
+  return hits.length >= 1 && hits.length / words.length >= 0.5;
+}
+function isSectionHeader(line) {
+  const t = line.trim();
+  if (/^\[.{1,40}\]$/.test(t)) return true;
+  if (/^(Verse|Chorus|Bridge|Pre-?Chorus|Outro|Intro|Hook|Tag|Solo|Interlude|Refrain|Break)(\s+\d+)?[:\s]*$/i.test(t)) return true;
+  if (/^[A-Z]{3,15}(\s+\d)?$/.test(t) && t.length < 20) return true;
+  return false;
+}
+
+// ── Render ───────────────────────────────────────────────────
+function renderCurrentSong() {
+  if (!currentSong) return;
+  const songView = document.getElementById('songView');
+  const viewer   = document.getElementById('viewer');
+  const lines    = currentSong.content.split('\n');
+
+  let html = `<div class="song-header">
+    <div class="song-title">${esc(currentSong.title)}</div>
+    <div class="song-meta">`;
+  if (currentSong.key)
+    html += `<span>🎵 Key: <strong style="color:var(--amber-light)">${esc(transposeNote(currentSong.key, transposeSteps))}</strong></span>`;
+  if (transposeSteps !== 0)
+    html += `<span>🔀 ${transposeSteps > 0 ? '+' : ''}${transposeSteps} semitones</span>`;
+  if (currentSong.source)
+    html += `<span>☁ <a href="${esc(currentSong.source)}" target="_blank" style="color:var(--amber-dim)">View source</a></span>`;
+  html += `</div></div><div class="chord-sheet">`;
+
+  // Edit button — only for community songs
+  if (activeCommunityFile) {
+    const vstr = currentSong._communityVersion ? ` v${currentSong._communityVersion}` : '';
+    document.getElementById('editCommunityBtn').style.display = 'inline-flex';
+    document.getElementById('editCommunityBtn').title = `Edit${vstr} on Community`;
+  } else {
+    document.getElementById('editCommunityBtn').style.display = 'none';
+  }
+
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (!line.trim()) {
+      html += `<span class="blank-line"></span>`; i++;
+    } else if (isSectionHeader(line)) {
+      html += `<span class="section-header">${esc(line.trim())}</span>`; i++;
+    } else if (isChordLine(line)) {
+      const chords = transposeChordLine(line, transposeSteps);
+      const next   = lines[i + 1];
+      const hasLyric = next !== undefined && next.trim() !== '' && !isChordLine(next) && !isSectionHeader(next);
+      // Make chords tappable: wrap each chord token in a span
+      const lineIdx = i;
+      let matchIdx = 0;
+      const origChords = (line.match(/[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d|aug|dim)?/g) || []);
+      const tappableChords = chords.replace(
+        /[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d|aug|dim)?/g,
+        chord => {
+          const mi = matchIdx++;
+          const orig = origChords[mi] || chord;
+          return `<span class="tappable-chord" data-li="${lineIdx}" data-mi="${mi}" data-orig="${esc(orig)}">${esc(chord)}</span>`;
+        }
+      );
+      if (hasLyric) {
+        html += `<span class="line-pair"><span class="chord-line">${tappableChords}</span><span class="lyric-line">${esc(next)}</span></span>`;
+        i += 2;
+      } else {
+        html += `<span class="line-pair"><span class="chord-line">${tappableChords}</span></span>`; i++;
+      }
+    } else {
+      html += `<span class="lyric-only">${esc(line)}</span>`; i++;
+    }
+  }
+
+  html += `</div>`;
+  songView.innerHTML = html;
+  viewer.style.fontSize = fontSize + 'px';
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Library ──────────────────────────────────────────────────
+function saveSongs() {
+  const data = JSON.stringify(songs);
+  // Try Claude artifact persistent storage first, then localStorage fallback
+  if (window.storage && typeof window.storage.set === 'function') {
+    window.storage.set('fretboard_songs', data).catch(() => {});
+  }
+  try { localStorage.setItem('fretboard_songs', data); } catch(e) {}
+}
+
+async function loadSongs() {
+  // Try Claude artifact persistent storage first
+  if (window.storage && typeof window.storage.get === 'function') {
+    try {
+      const result = await window.storage.get('fretboard_songs');
+      if (result && result.value) return JSON.parse(result.value);
+    } catch(e) {}
+  }
+  // Fallback to localStorage
+  try {
+    const stored = localStorage.getItem('fretboard_songs');
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  return null;
+}
+
+function renderSongList() {
+  const q    = (document.getElementById('searchInput').value || '').toLowerCase();
+  const list = document.getElementById('songList');
+  const filt = songs.filter(s => s.title.toLowerCase().includes(q));
+  if (!filt.length) {
+    list.innerHTML = `<div style="padding:20px;font-size:0.72rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;text-align:center">No songs yet.<br>Add one from Manual or Drive.</div>`;
+    return;
+  }
+  list.innerHTML = filt.map(s => `
+    <div class="song-item ${currentSong?.id === s.id ? 'active' : ''}" data-id="${s.id}">
+      <span class="song-item-icon">${s.source ? '☁' : '🎸'}</span>
+      <div class="song-item-info">
+        <div class="song-item-name">${esc(s.title)}</div>
+        <div class="song-item-key">${s.key ? 'Key of ' + esc(s.key) : 'Unknown key'}</div>
+      </div>
+      <button class="song-item-del" data-del="${s.id}">✕</button>
+    </div>`).join('');
+}
+
+function selectSong(id) {
+  activeCommunityFile = null;  // clear community context on local song select
+  currentSong = songs.find(s => s.id === id) || null;
+  if (!currentSong) return;
+  transposeSteps = currentSong.settings?.transpose   ?? 0;
+  scrollSpeed    = currentSong.settings?.scrollSpeed ?? 4;
+  fontSize       = currentSong.settings?.fontSize    ?? 16;
+  document.getElementById('scrollSpeed').value = scrollSpeed;
+  document.getElementById('speedLabel').textContent = scrollSpeed + '×';
+  document.getElementById('viewer').style.fontSize = fontSize + 'px';
+  updateTransposeDisplay();
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('songView').style.display = 'block';
+  renderCurrentSong();
+  renderSongList();
+  switchTab('library');
+}
+
+// Custom confirm (native confirm() blocked in sandboxed iframes)
+let _confirmResolve = null;
+function showConfirm(msg) {
+  return new Promise(resolve => {
+    _confirmResolve = resolve;
+    document.getElementById('confirmMsg').textContent = msg;
+    document.getElementById('confirmModal').classList.add('visible');
+  });
+}
+function resolveConfirm(val) {
+  document.getElementById('confirmModal').classList.remove('visible');
+  if (_confirmResolve) { _confirmResolve(val); _confirmResolve = null; }
+}
+
+async function deleteSong(e, id) {
+  e.stopPropagation();
+  const ok = await showConfirm('Remove this song from your library?');
+  if (!ok) return;
+  songs = songs.filter(s => s.id !== id);
+  saveSongs();
+  if (currentSong?.id === id) {
+    currentSong = null;
+    document.getElementById('emptyState').style.display = '';
+    document.getElementById('songView').style.display = 'none';
+  }
+  renderSongList();
+}
+
+function addManualSong() {
+  const title   = document.getElementById('manTitle').value.trim() || 'Untitled Song';
+  const key     = document.getElementById('manKey').value.trim();
+  const content = document.getElementById('manContent').value;
+  if (!content.trim()) { showToast('Please enter some content', 'error'); return; }
+  const song = { id: Date.now().toString(), title, key, content: cleanText(content), source: null };
+  songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+  document.getElementById('manTitle').value = '';
+  document.getElementById('manKey').value = '';
+  document.getElementById('manContent').value = '';
+  showToast('Song added! ✓', 'success');
+}
+
+// ── Pure-JS .docx parser (no library needed) ─────────────────
+async function extractDocxText(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  const decoder = new TextDecoder();
+
+  function u16(o) { return bytes[o] | (bytes[o+1] << 8); }
+  function u32(o) { return (bytes[o] | (bytes[o+1]<<8) | (bytes[o+2]<<16) | (bytes[o+3]<<24)) >>> 0; }
+
+  // Walk ZIP local-file entries to find word/document.xml
+  let offset = 0, docXml = null;
+  while (offset < bytes.length - 30) {
+    if (u32(offset) !== 0x04034b50) break;
+    const method     = u16(offset + 8);
+    const compressed = u32(offset + 18);
+    const fnLen      = u16(offset + 26);
+    const exLen      = u16(offset + 28);
+    const name       = decoder.decode(bytes.slice(offset + 30, offset + 30 + fnLen));
+    const dataStart  = offset + 30 + fnLen + exLen;
+    const chunk      = bytes.slice(dataStart, dataStart + compressed);
+
+    if (name === 'word/document.xml') {
+      if (method === 0) {
+        docXml = decoder.decode(chunk);
+      } else if (method === 8) {
+        const ds = new DecompressionStream('deflate-raw');
+        const w = ds.writable.getWriter();
+        const r = ds.readable.getReader();
+        w.write(chunk); w.close();
+        const parts = [];
+        for (;;) { const {done,value} = await r.read(); if (done) break; parts.push(value); }
+        const out = new Uint8Array(parts.reduce((n,p) => n+p.length, 0));
+        let p = 0; for (const part of parts) { out.set(part, p); p += part.length; }
+        docXml = decoder.decode(out);
+      }
+      break;
+    }
+    offset = dataStart + compressed;
+  }
+
+  if (!docXml) throw new Error('Could not find word/document.xml inside the .docx file');
+
+  // Parse XML: each <w:p> = one line, collect text from all <w:t> children
+  const xmlDoc = new DOMParser().parseFromString(docXml, 'application/xml');
+  const ns = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  const lines = [];
+  for (const para of xmlDoc.getElementsByTagNameNS(ns, 'p')) {
+    let line = '';
+    for (const t of para.getElementsByTagNameNS(ns, 't')) line += t.textContent;
+    lines.push(line);
+  }
+  return lines.join('\n');
+}
+
+// ── File loading ──────────────────────────────────────────────
+async function loadFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const ext   = file.name.split('.').pop().toLowerCase();
+  const title = file.name.replace(/\.[^.]+$/, '');
+  try {
+    let text = '';
+    if (ext === 'docx' || ext === 'doc') {
+      text = await extractDocxText(await file.arrayBuffer());
+    } else {
+      text = await file.text();
+      if (ext === 'rtf') text = stripRtf(text);
+    }
+    text = cleanText(text);
+    if (!text.trim()) throw new Error('No text content found in file');
+    const song = { id: Date.now().toString(), title, key: detectKey(text), content: text, source: null };
+    songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+    showToast('File loaded! ✓', 'success');
+  } catch(err) {
+    showToast('Could not read file: ' + err.message, 'error');
+  }
+  event.target.value = '';
+}
+
+function stripRtf(rtf) {
+  return rtf.replace(/\\[a-z]+[-]?\d*/gi,' ').replace(/[{}\\]/g,'').replace(/[ \t]+/g,' ').trim();
+}
+// ── Word doc format fixups ─────────────────────────────────────
+// Fix chords/labels merged with no space by Word (e.g. "INTROAm E7GDFCDmE7")
+function preprocessLine(line) {
+  const PURE_CHORD = /^[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d|aug|dim)?$/;
+  const CHORD_PFX  = /^([A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d|aug|dim)?)/;
+  const LABEL      = /^(INTRO|OUTRO|VERSE|CHORUS|BRIDGE|SOLO|HOOK|TAG|BREAK|REFRAIN|INTERLUDE|X\d+)$/i;
+
+  function expandMerged(tok) {
+    if (PURE_CHORD.test(tok)) return null;
+    const out = []; let rem = tok;
+    while (rem) { const m = CHORD_PFX.exec(rem); if (!m) return null; out.push(m[1]); rem = rem.slice(m[1].length); }
+    return out.length > 1 ? out : null;
+  }
+
+  // Separate label glued directly to first chord: "INTROAm" → "INTRO Am"
+  const fixed = line.replace(
+    /(INTRO|OUTRO|VERSE|CHORUS|BRIDGE|SOLO|HOOK|TAG|BREAK|REFRAIN|INTERLUDE)([A-G])/gi,
+    '$1 $2'
+  );
+
+  const tokens = fixed.split(/\s+/).filter(Boolean);
+  if (!tokens.length) return line;
+
+  const isNonLyric = t => PURE_CHORD.test(t) || LABEL.test(t) || /^#?\d+$/.test(t) || t === '=' || !!expandMerged(t);
+  if (!tokens.every(isNonLyric)) return fixed; // has lyrics, just return label-fixed
+
+  const needsExpand = tokens.some(t => expandMerged(t));
+  if (!needsExpand && fixed === line) return line; // nothing changed
+
+  // Expand merged chord runs ("E7GDFCDmE7" → "E7  G  D  F  C  Dm  E7")
+  const expanded = tokens.flatMap(t => expandMerged(t) || [t]);
+  return expanded.join('  ');
+}
+
+// Split lines that mix chords and lyrics onto separate lines
+// e.g. "Dm    My head grew heavy" → "Dm\nMy head grew heavy"
+// e.g. "lyric lyric hairG  D"    → "         G  D\nlyric lyric hair"
+function splitHybridLines(text) {
+  const PURE_CHORD = /^[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d|aug|dim)?$/;
+  // (?<![A-Z0-9]) catches chords glued to end of lyric words (e.g. "hairG")
+  const CHORD_FIND = /(?<![A-Z0-9])([A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d|aug|dim)?)(?!\w)/g;
+
+  function looksLikeLyric(str) {
+    return str.split(' ').some(w => /[aeiouAEIOU]/.test(w) && w.length > 1);
+  }
+
+  function trySplit(line) {
+    if (line.includes('=')) return null;
+    const tokens = line.trim().split(/\s+/).filter(Boolean);
+    if (tokens.length < 2) return null;
+    const chords = tokens.filter(t => PURE_CHORD.test(t.replace(/[.,]$/, '')));
+    const lyrics = tokens.filter(t => !PURE_CHORD.test(t.replace(/[.,]$/, '')));
+    if (!chords.length || !lyrics.length) return null;
+    if (chords.length / tokens.length >= 0.5) return null;
+    if (!looksLikeLyric(lyrics.join(' '))) return null;
+
+    const positions = [];
+    CHORD_FIND.lastIndex = 0;
+    let m;
+    while ((m = CHORD_FIND.exec(line)) !== null) {
+      if (PURE_CHORD.test(m[1])) positions.push([m.index, m.index + m[1].length, m[1]]);
+    }
+    if (!positions.length) return null;
+
+    const chArr = Array(line.length).fill(' ');
+    for (const [s, , chord] of positions)
+      for (let i = 0; i < chord.length && s + i < chArr.length; i++) chArr[s + i] = chord[i];
+    const chordLine = chArr.join('').trimEnd();
+
+    let lyricLine = line;
+    for (const [s, e] of [...positions].reverse())
+      lyricLine = lyricLine.slice(0, s) + ' '.repeat(e - s) + lyricLine.slice(e);
+    // Remove chord glued to end of a word (e.g. "hairG" → "hair")
+    lyricLine = lyricLine.replace(/([a-z])([A-G][b#]?\d*)\b/g, '$1');
+    lyricLine = lyricLine.trim().replace(/  +/g, ' ');
+
+    // Detect if all chords appear AFTER the lyric text ends.
+    // e.g. "Cool wind in my hair G    D" → G and D are for the NEXT line.
+    // In that case return [lyric, chord] so chord ends up above the next line.
+    let lyricOnly = line;
+    for (const [s, e] of [...positions].reverse())
+      lyricOnly = lyricOnly.slice(0, s) + ' '.repeat(e - s) + lyricOnly.slice(e);
+    const lyricEnd = lyricOnly.trimEnd().length;
+    const allChordsAfterLyric = positions.every(([s]) => s >= lyricEnd);
+
+    return allChordsAfterLyric
+      ? [lyricLine, chordLine]   // chord belongs above the NEXT line
+      : [chordLine, lyricLine];  // chord belongs above THIS line (normal)
+  }
+
+  return text.split('\n').flatMap(line => {
+    const preprocessed = preprocessLine(line);
+    const r = trySplit(preprocessed);
+    return r ? [r[0], r[1]] : [preprocessed];
+  }).join('\n');
+}
+
+function cleanText(text) {
+  return splitHybridLines(
+    text
+      .replace(/\r\n/g,'\n').replace(/\r/g,'\n')
+      .replace(/[\u200B-\u200D\uFEFF\u00A0]/g,' ')
+      .replace(/\n{3,}/g,'\n\n')
+      .split('\n').map(l => l.trimEnd()).join('\n')
+  ).trim();
+}
+function detectKey(text) {
+  const m = text.match(/key\s*[=:\-]\s*([A-G][b#]?m?)/i) || text.match(/\bkey of ([A-G][b#]?m?)\b/i);
+  return m ? m[1] : '';
+}
+
+// ── Google Drive ──────────────────────────────────────────────
+async function loadFromDrive() {
+  const url        = document.getElementById('driveUrl').value.trim();
+  const titleInput = document.getElementById('driveSongTitle').value.trim();
+  const keyInput   = document.getElementById('driveKey').value.trim();
+  if (!url) { showToast('Please paste a Google Docs link', 'error'); return; }
+  const match = url.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+  if (!match) { showToast('Could not find a Google Docs ID in that URL', 'error'); return; }
+  const exportUrl = `https://docs.google.com/document/d/${match[1]}/export?format=txt`;
+  const proxies = [
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => u
+  ];
+  setLoading(true);
+  let loaded = false;
+  for (const mkUrl of proxies) {
+    try {
+      const resp = await fetch(mkUrl(exportUrl), { signal: AbortSignal.timeout(8000) });
+      if (!resp.ok) continue;
+      const text = await resp.text();
+      if (!text || text.length < 10) continue;
+      const title = titleInput || extractTitle(text) || 'Untitled Song';
+      const song  = { id: Date.now().toString(), title, key: keyInput || detectKey(text), content: cleanText(text), source: url };
+      songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+      document.getElementById('driveUrl').value = '';
+      document.getElementById('driveSongTitle').value = '';
+      document.getElementById('driveKey').value = '';
+      document.getElementById('driveFallback').style.display = 'none';
+      showToast('Loaded from Google Drive! ✓', 'success');
+      loaded = true; break;
+    } catch(e) {}
+  }
+  if (!loaded) {
+    document.getElementById('driveFallback').style.display = 'block';
+    showToast('Auto-load failed — paste content below', 'error');
+  }
+  setLoading(false);
+}
+
+function loadFromPaste() {
+  const content    = document.getElementById('drivePasteArea').value.trim();
+  const titleInput = document.getElementById('driveSongTitle').value.trim();
+  const keyInput   = document.getElementById('driveKey').value.trim();
+  const url        = document.getElementById('driveUrl').value.trim();
+  if (!content) { showToast('Please paste some content first', 'error'); return; }
+  const title = titleInput || extractTitle(content) || 'Untitled Song';
+  const song  = { id: Date.now().toString(), title, key: keyInput || detectKey(content), content: cleanText(content), source: url || null };
+  songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
+  ['drivePasteArea','driveUrl','driveSongTitle','driveKey'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('driveFallback').style.display = 'none';
+  showToast('Song added! ✓', 'success');
+}
+
+function extractTitle(text) {
+  const first = text.split('\n').find(l => l.trim());
+  return first ? first.trim().slice(0, 60) : '';
+}
+function setLoading(on) {
+  document.getElementById('loadingIndicator').style.display = on ? 'block' : 'none';
+  document.getElementById('driveLoadBtn').disabled = on;
+}
+
+// ── Auto-scroll ───────────────────────────────────────────────
+function toggleScroll() {
+  scrolling = !scrolling;
+  const btn = document.getElementById('scrollBtn');
+  const bar = document.getElementById('scrollBar');
+  if (scrolling) {
+    btn.textContent = '⏸ Auto'; btn.classList.add('active'); bar.classList.add('visible');
+    startScrolling();
+  } else {
+    btn.textContent = '▶ Auto'; btn.classList.remove('active'); bar.classList.remove('visible');
+    cancelAnimationFrame(scrollRAF);
+  }
+}
+
+function startScrolling() {
+  cancelAnimationFrame(scrollRAF);
+  const viewer = document.getElementById('viewer');
+  let last = null;
+  let accumulated = 0; // float accumulator so sub-pixel amounts don't get lost
+  function step(ts) {
+    if (!scrolling) return;
+    if (last !== null) {
+      const delta = ts - last;
+      // speed 1–20 → 20–400 px/sec. Accumulate fractional pixels.
+      accumulated += (scrollSpeed * 20 * delta) / 1000;
+      const whole = Math.floor(accumulated);
+      if (whole >= 1) {
+        viewer.scrollTop += whole;
+        accumulated -= whole;
+      }
+      if (viewer.scrollTop + viewer.clientHeight >= viewer.scrollHeight - 4) {
+        toggleScroll(); return;
+      }
+    }
+    last = ts;
+    scrollRAF = requestAnimationFrame(step);
+  }
+  scrollRAF = requestAnimationFrame(step);
+}
+
+function updateScrollSpeed() {
+  scrollSpeed = parseInt(document.getElementById('scrollSpeed').value);
+  document.getElementById('speedLabel').textContent = scrollSpeed + '×';
+  document.getElementById('scrollLabel').textContent = `Auto-scrolling… (${scrollSpeed}×)`;
+  if (scrolling) startScrolling();
+  saveCurrentSettings();
+}
+
+// ── Font size ─────────────────────────────────────────────────
+function changeFontSize(delta) {
+  fontSize = Math.max(11, Math.min(28, fontSize + delta));
+  document.getElementById('viewer').style.fontSize = fontSize + 'px';
+  saveCurrentSettings();
+}
+
+// ── UI ────────────────────────────────────────────────────────
+function switchTab(name) {
+  ['library','drive','manual','community'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+    document.getElementById('panel-' + t).classList.toggle('active', t === name);
+  });
+  if (name === 'community' && communitySongs.length === 0) loadCommunityList();
+}
+let toastTimer;
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── Community ─────────────────────────────────────────────────
+async function loadCommunityList() {
+  const btn = document.getElementById('communityRefreshBtn');
+  const list = document.getElementById('communityList');
+  btn.disabled = true;
+  btn.textContent = '↻ Loading…';
+  list.innerHTML = `<div style="padding:20px;text-align:center"><div class="loading"></div></div>`;
+  try {
+    const resp = await fetch(COMMUNITY_API, {
+      headers: { Authorization: `token ${GH_TOKEN}` }
+    });
+    if (!resp.ok) throw new Error(`GitHub API ${resp.status}`);
+    const files = await resp.json();
+    communitySongs = files.filter(f => /\.(txt|docx)$/i.test(f.name));
+    renderCommunityList();
+    showToast(`${communitySongs.length} songs loaded ✓`, 'success');
+  } catch(e) {
+    list.innerHTML = `<div style="padding:20px;font-size:0.72rem;color:var(--red);font-family:'JetBrains Mono',monospace;text-align:center">Failed to load: ${e.message}</div>`;
+    showToast('Could not reach community library', 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = '↻ Refresh';
+}
+
+function renderCommunityList() {
+  const q = (document.getElementById('communitySearch').value || '').toLowerCase();
+  const list = document.getElementById('communityList');
+  const filtered = communitySongs.filter(f => f.name.toLowerCase().includes(q));
+  if (!filtered.length) {
+    list.innerHTML = `<div style="padding:20px;font-size:0.72rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;text-align:center">No songs found.</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(f => {
+    const title = f.name.replace(/\.[^.]+$/, '');
+    return `<div class="song-item" data-community="${encodeURIComponent(f.name)}">
+      <span class="song-item-icon">🌐</span>
+      <div class="song-item-info">
+        <div class="song-item-name">${esc(title)}</div>
+        <div class="song-item-key">${f.name.split('.').pop().toUpperCase()}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterCommunityList() { renderCommunityList(); }
+
+document.getElementById('communityList').addEventListener('click', async function(e) {
+  const item = e.target.closest('[data-community]');
+  if (!item) return;
+  const fname = decodeURIComponent(item.dataset.community);
+  const file  = communitySongs.find(f => f.name === fname);
+  if (!file) return;
+  await loadCommunitySong(file);
+});
+
+async function loadCommunitySong(file) {
+  setLoading(true);
+  try {
+    // Fetch raw content + sha via API (need sha for future edits)
+    const resp = await fetch(`${GH_API}/contents/${GH_SONGS}/${encodeURIComponent(file.name)}`, {
+      headers: { Authorization: `token ${GH_TOKEN}` }
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const meta = await resp.json();
+
+    let text = '';
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext === 'docx') {
+      const raw = await fetch(file.download_url);
+      text = await extractDocxText(await raw.arrayBuffer());
+    } else {
+      text = atob(meta.content.replace(/\n/g, ''));
+      text = new TextDecoder().decode(Uint8Array.from(text, c => c.charCodeAt(0)));
+    }
+    text = cleanText(text);
+
+    // Parse version from header comment: # Version: N
+    let version = 1;
+    const vm = text.match(/^#\s*Version:\s*(\d+)/im);
+    if (vm) version = parseInt(vm[1]);
+
+    const title = file.name.replace(/\.[^.]+$/, '');
+    const song = {
+      id: 'community_' + file.name,
+      title,
+      key: detectKey(text),
+      content: text,
+      source: null,
+      _communityVersion: version,
+      _communityFile: file.name
+    };
+    activeCommunityFile = { name: file.name, sha: meta.sha, path: meta.path, ext };
+    currentSong = song;
+    transposeSteps = 0;
+    scrollSpeed = 4;
+    fontSize = 16;
+    document.getElementById('scrollSpeed').value = scrollSpeed;
+    document.getElementById('speedLabel').textContent = scrollSpeed + '×';
+    document.getElementById('viewer').style.fontSize = fontSize + 'px';
+    updateTransposeDisplay();
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('songView').style.display = 'block';
+    renderCurrentSong();
+    switchTab('library'); // keep sidebar usable, user can go back to community
+    showToast(`Loaded: ${title} ✓`, 'success');
+  } catch(e) {
+    showToast('Could not load song: ' + e.message, 'error');
+  }
+  setLoading(false);
+}
+
+// When selecting a local song, clear activeCommunityFile
+
+// ── Edit Modal ────────────────────────────────────────────────
+function openEditModal() {
+  if (!currentSong) return;
+  const ver = currentSong._communityVersion || 1;
+  document.getElementById('editModalTitle').textContent = currentSong.title;
+  document.getElementById('editModalVersion').textContent = `v${ver} → v${ver + 1}`;
+  document.getElementById('editTextarea').value = currentSong.content;
+  document.getElementById('editModal').classList.add('visible');
+  setTimeout(() => document.getElementById('editTextarea').focus(), 100);
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('visible');
+}
+
+// ── Chord-click inline edit ───────────────────────────────────
+let _chordPopupTarget = null; // {lineIdx, matchIdx, original}
+
+function openChordPopup(spanEl, lineIdx, matchIdx, original) {
+  _chordPopupTarget = { lineIdx, matchIdx, original };
+  const rect = spanEl.getBoundingClientRect();
+  const popup = document.getElementById('chordPopup');
+  popup.style.display = 'block';
+  popup.style.left = Math.min(rect.left, window.innerWidth - 180) + 'px';
+  popup.style.top  = (rect.bottom + 6) + 'px';
+  const inp = document.getElementById('chordPopupInput');
+  inp.value = original;
+  inp.focus();
+  inp.select();
+}
+
+function closeChordPopup() {
+  document.getElementById('chordPopup').style.display = 'none';
+  _chordPopupTarget = null;
+}
+
+function chordPopupKey(e) {
+  if (e.key === 'Enter')  applyChordPopup();
+  if (e.key === 'Escape') closeChordPopup();
+}
+
+function applyChordPopup() {
+  if (!_chordPopupTarget || !currentSong) return;
+  const newChord = document.getElementById('chordPopupInput').value.trim();
+  if (!newChord) { closeChordPopup(); return; }
+  const { lineIdx, matchIdx, original } = _chordPopupTarget;
+  const lines = currentSong.content.split('\n');
+  let count = 0;
+  lines[lineIdx] = lines[lineIdx].replace(
+    /[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|dom)?(?:\d+)?(?:\/[A-G][b#]?)?(?:sus\d?|add\d|aug|dim)?/g,
+    match => count++ === matchIdx ? newChord : match
+  );
+  currentSong.content = lines.join('\n');
+  closeChordPopup();
+  renderCurrentSong();
+  showToast(`${original} → ${newChord}`, 'success');
+}
+
+// Chord tapping is integrated directly in renderCurrentSong above
+
+// Event delegation for chord tap
+document.getElementById('viewer').addEventListener('click', function(e) {
+  const span = e.target.closest('.tappable-chord');
+  if (!span) { closeChordPopup(); return; }
+  openChordPopup(span, parseInt(span.dataset.li), parseInt(span.dataset.mi), span.dataset.orig);
+});
+
+// Close chord popup on scroll
+document.getElementById('viewer').addEventListener('scroll', closeChordPopup);
+
+// ── GitHub PR submit ──────────────────────────────────────────
+let _prUrl = '';
+
+async function submitCommunityEdit() {
+  if (!activeCommunityFile || !currentSong) return;
+  const editedContent = document.getElementById('editTextarea').value;
+  if (!editedContent.trim()) { showToast('Content is empty', 'error'); return; }
+
+  const btn = document.getElementById('editSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Submitting…';
+
+  try {
+    const ver = (currentSong._communityVersion || 1) + 1;
+    // Inject/update version header
+    let finalContent = editedContent;
+    if (/^#\s*Version:/im.test(finalContent)) {
+      finalContent = finalContent.replace(/^(#\s*Version:)\s*\d+/im, `$1 ${ver}`);
+    } else {
+      finalContent = `# Version: ${ver}\n# Edited: ${new Date().toISOString().slice(0,10)}\n` + finalContent;
+    }
+
+    const encoded = btoa(unescape(encodeURIComponent(finalContent)));
+    const slug    = activeCommunityFile.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase();
+    const branch  = `edit/${slug}-v${ver}-${Date.now()}`;
+    const filePath = `${GH_SONGS}/${activeCommunityFile.name}`;
+    const headers  = {
+      Authorization: `token ${GH_TOKEN}`,
+      'Content-Type': 'application/json'
+    };
+
+    // 1. Get default branch SHA
+    const repoResp = await fetch(`${GH_API}`, { headers });
+    const repoData = await repoResp.json();
+    const defaultBranch = repoData.default_branch || 'main';
+
+    const branchResp = await fetch(`${GH_API}/git/refs/heads/${defaultBranch}`, { headers });
+    const branchData = await branchResp.json();
+    const baseSha    = branchData.object.sha;
+
+    // 2. Create new branch
+    const createBranch = await fetch(`${GH_API}/git/refs`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha })
+    });
+    if (!createBranch.ok) throw new Error(`Branch creation failed: ${createBranch.status}`);
+
+    // 3. Push file to new branch
+    const pushResp = await fetch(`${GH_API}/contents/${filePath}`, {
+      method: 'PUT', headers,
+      body: JSON.stringify({
+        message: `Edit: ${currentSong.title} v${ver}`,
+        content: encoded,
+        sha: activeCommunityFile.sha,
+        branch
+      })
+    });
+    if (!pushResp.ok) {
+      const err = await pushResp.json();
+      throw new Error(err.message || `Push failed: ${pushResp.status}`);
+    }
+
+    // 4. Open Pull Request
+    const prResp = await fetch(`${GH_API}/pulls`, {
+      method: 'POST', headers,
+      body: JSON.stringify({
+        title: `Edit: ${currentSong.title} v${ver}`,
+        head: branch,
+        base: defaultBranch,
+        body: `Community edit submitted from Fretboard app.\n\n**Song:** ${currentSong.title}\n**Version:** v${ver}\n**Date:** ${new Date().toISOString().slice(0,10)}`
+      })
+    });
+    const prData = await prResp.json();
+    if (!prResp.ok) throw new Error(prData.message || `PR failed: ${prResp.status}`);
+
+    _prUrl = prData.html_url;
+    closeEditModal();
+    // Update local copy so further edits use new version
+    currentSong.content = finalContent;
+    currentSong._communityVersion = ver;
+    activeCommunityFile.sha = (await pushResp.json().catch(()=>({content:{sha:activeCommunityFile.sha}})))?.content?.sha || activeCommunityFile.sha;
+    renderCurrentSong();
+
+    document.getElementById('prModalMsg').textContent = `Edit submitted for "${currentSong.title}"`;
+    document.getElementById('prModalSub').textContent = `Branch: ${branch}\nPR: ${prData.title}\n\nMerge on GitHub to publish to the community.`;
+    document.getElementById('prModal').classList.add('visible');
+
+  } catch(e) {
+    showToast('Submission failed: ' + e.message, 'error');
+    console.error(e);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '📤 Save to Community';
+}
+
+function closePrModal() {
+  document.getElementById('prModal').classList.remove('visible');
+}
+function openPrLink() {
+  if (_prUrl) window.open(_prUrl, '_blank');
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === ' ')                   { e.preventDefault(); toggleScroll(); }
+  if (e.key === 'ArrowUp'   && e.shiftKey) transpose(-1);
+  if (e.key === 'ArrowDown' && e.shiftKey) transpose(+1);
+  if (e.key === 'r' || e.key === 'R')  resetTranspose();
+});
+
+
+// ── Save / Load Library ───────────────────────────────────────
+function saveLibraryAsFile() {
+  if (songs.length === 0) { showToast('No songs to save!', 'error'); return; }
+  const html = document.documentElement.outerHTML;
+  const songsJson = JSON.stringify(songs, null, 2);
+  const START = '// @@FRETBOARD_SONGS_START@@';
+  const END   = '// @@FRETBOARD_SONGS_END@@';
+  const si = html.indexOf(START), ei = html.indexOf(END);
+  if (si === -1 || ei === -1) { showToast('Save point not found — try reloading the app', 'error'); return; }
+  const saved = html.slice(0, si) +
+    `${START}\n  songs = ${songsJson};\n  saveSongs();\n  ` +
+    html.slice(ei);
+  const blob = new Blob([saved], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'fretboard-library.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast(`Library saved! ${songs.length} song${songs.length > 1 ? 's' : ''} baked in ✓`, 'success');
+}
+
+function loadLibraryFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const text = e.target.result;
+      // Use our markers to reliably extract the songs JSON
+      const START = '// @@FRETBOARD_SONGS_START@@';
+      const si = text.indexOf(START);
+      if (si === -1) throw new Error('No song library found in this file');
+      const block = text.slice(si + START.length);
+      const arrStart = block.indexOf('[');
+      const arrEnd = block.indexOf('];', arrStart);
+      if (arrStart === -1 || arrEnd === -1) throw new Error('Could not locate song data');
+      const imported = JSON.parse(block.slice(arrStart, arrEnd + 1));
+      if (!Array.isArray(imported)) throw new Error('Invalid library format');
+      // Merge: add songs that aren't already in library (by title)
+      const existingTitles = new Set(songs.map(s => s.title.toLowerCase()));
+      const newSongs = imported.filter(s => !existingTitles.has(s.title.toLowerCase()));
+      songs = [...newSongs, ...songs];
+      saveSongs();
+      renderSongList();
+      showToast(`Loaded ${newSongs.length} new song${newSongs.length !== 1 ? 's' : ''}${imported.length - newSongs.length > 0 ? ` (${imported.length - newSongs.length} already existed)` : ''} ✓`, 'success');
+    } catch(err) {
+      showToast('Could not read library file: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ── Event delegation for song list ───────────────────────────
+document.getElementById('songList').addEventListener('click', function(e) {
+  const delBtn = e.target.closest('[data-del]');
+  if (delBtn) { deleteSong(e, delBtn.dataset.del); return; }
+  const item = e.target.closest('[data-id]');
+  if (item) selectSong(item.dataset.id);
+});
+
+// ── Init (async to support window.storage) ────────────────────
+async function init() {
+  const stored = await loadSongs();
+  if (stored) {
+    songs = stored;
+  }
+  // @@FRETBOARD_SONGS_START@@
+  if (songs.length === 0) {
+    songs = [
+      {
+        id: 'demo1', title: 'Amazing Grace', key: 'G',
+        content: `[Verse 1]\nG        G7       C    G\nAmazing grace how sweet the sound\nG          G7         D\nThat saved a wretch like me\nG        G7      C      G\nI once was lost but now am found\nG      D7       G\nWas blind but now I see\n\n[Verse 2]\nG          G7        C      G\nTwas grace that taught my heart to fear\nG         G7       D\nAnd grace my fears relieved\nG        G7       C      G\nHow precious did that grace appear\nG      D7     G\nThe hour I first believed`,
+        source: null
+      },
+      {
+        id: 'demo2', title: "Knockin' on Heaven's Door", key: 'G',
+        content: `[Verse]\nG        D         Am\nMama take this badge off of me\nG        D             C\nI can't use it anymore\nG          D           Am\nIt's getting dark too dark to see\nG        D          C\nI feel I'm knocking on heaven's door\n\n[Chorus]\nG           D            C\nKnock knock knocking on heaven's door\nG           D            C\nKnock knock knocking on heaven's door`,
+        source: null
+      }
+    ];
+    saveSongs();
+  }
+  // @@FRETBOARD_SONGS_END@@
+  renderSongList();
+  document.getElementById('versionLabel').textContent = APP_VERSION;
+}
+init();
+</script>
+</body>
+</html>
