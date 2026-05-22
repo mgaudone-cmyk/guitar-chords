@@ -155,7 +155,7 @@
     min-height: 0;
   }
 
-  .tab-bar { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-x: auto; }
+  .tab-bar { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .tab-btn { white-space: nowrap; flex-shrink: 0; }
   .tab-btn {
     flex: 1; padding: 10px;
@@ -2975,30 +2975,46 @@ async function runAiFormat() {
   document.getElementById('aiModalMsg').textContent = 'Sending to AI…';
 
   try {
-    const prompt = `You are a guitar chord sheet formatter. Reformat the chord sheet below so each chord symbol is placed directly above the syllable it is played on, using monospace spacing (spaces only, no tabs).
+    const prompt = `You are a guitar chord sheet formatter. Your job is to place chord symbols directly above the exact syllable where the chord change happens, using monospace character alignment.
 
-Rules:
-- Chords go on their own line, directly above the lyric line
-- Each chord must be horizontally aligned with the exact character position of the syllable it belongs to
-- Preserve all section headers like [Verse], [Chorus] exactly
-- Preserve all blank lines between sections
-- Do NOT change any lyrics or chord names
-- Return ONLY the formatted chord sheet text, nothing else
+CRITICAL RULES:
+1. Each chord line must use ONLY spaces to position chords — no tabs
+2. A chord must start at the EXACT character column of the syllable it belongs to
+3. Chords go on a separate line ABOVE the lyric line they belong to
+4. If two chords are close together, separate them with at least one space
+5. Preserve ALL section headers like [Verse 1], [Chorus] on their own lines
+6. Preserve ALL blank lines between sections exactly
+7. Do NOT alter any lyric text or chord names
+8. Return ONLY the formatted song — no explanation, no markdown, no extra text
 
-Chord sheet:
+EXAMPLE INPUT:
+G the first chord D second chord Em third
+Amazing grace how sweet the sound That saved a wretch like me
+
+CORRECT OUTPUT:
+G              D             Em
+Amazing grace how sweet the sound That saved a wretch like me
+
+Now format this song using those exact rules:
+
 ${currentSong.content}`;
 
-    const response = await fetch(CF_WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt }),
-      signal: AbortSignal.timeout(30000)
-    });
+    let response;
+    try {
+      response = await fetch(CF_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+        signal: AbortSignal.timeout(45000)
+      });
+    } catch(fetchErr) {
+      throw new Error('Cannot reach AI Worker. Make sure the Worker is deployed and the AI binding is named "AI" in Cloudflare.');
+    }
 
-    if (!response.ok) throw new Error(`Worker error ${response.status} — check Cloudflare dashboard`);
+    if (!response.ok) throw new Error(`Worker returned ${response.status}. Check Cloudflare Workers dashboard for errors.`);
     const data = await response.json();
     const formatted = (data.result || data.response || '').trim();
-    if (!formatted) throw new Error('Empty response — check Worker code has AI binding named "AI"');
+    if (!formatted) throw new Error('AI returned empty result. Check Worker logs in Cloudflare dashboard.');
 
     _aiFormattedContent = formatted;
     document.getElementById('aiModalMsg').textContent = 'Preview — looks good?';
