@@ -2978,28 +2978,28 @@ async function runAiFormat() {
   try {
     const prompt = `Generate a complete, accurate guitar chord sheet for the song "${currentSong.title}".
 
-STRICT FORMAT RULES — follow exactly:
-1. Use monospace spacing — chords go on their own line ABOVE the lyric line
-2. Each chord must be positioned at the EXACT character column where it is played
-3. Use spaces only to align chords (no tabs)
-4. Include ALL sections: Intro, Verse, Pre-Chorus, Chorus, Bridge, Outro — whatever applies
-5. Include ALL lyrics for each section — do not abbreviate or write "repeat chorus"
-6. Section headers on their own line like: [Verse 1]  [Chorus]  [Bridge]
-7. One blank line between sections
-8. Return ONLY the chord sheet — no explanation, no intro text, no markdown fences
+FORMAT RULES — follow exactly:
+1. Every chord line must be placed IMMEDIATELY above its matching lyric line — never group chords separately
+2. The pattern is always: [chord line] then [lyric line] then [chord line] then [lyric line]
+3. Each chord is positioned using spaces so it sits above the exact syllable where the chord change happens
+4. Use spaces only for alignment — no tabs
+5. Section headers on their own line: [Intro] [Verse 1] [Chorus] [Bridge] [Outro]
+6. One blank line between sections
+7. Include ALL lyrics — do not write "repeat" or abbreviate anything
+8. Return ONLY the chord sheet — no explanation, no markdown fences, no preamble
 
-EXAMPLE of correct format:
+CORRECT EXAMPLE — this is exactly how each section should look:
 [Verse 1]
-G                 C
-Hey, where did we go
-G                       D
-Days when the rains came
+G/B  C      G/B  Am
+I    close  my   eyes
+G                    Dm7               Am              G/B
+only for a moment,   and the moment's  gone
 
 [Chorus]
-C          D          G    Em
-Do you remember when we used to sing
-C          D             G
-Sha la la la la la la la la la te da
+D/F#      G            Am        Am/G
+Dust in the wind
+D/F#                G             Am
+All they are is dust in the wind
 
 Now generate the full chord sheet for: ${currentSong.title}`;
 
