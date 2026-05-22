@@ -141,7 +141,8 @@
     grid-template-rows: 1fr;
     overflow: hidden;
     min-height: 0;
-    height: 0; /* force grid children to respect overflow */
+    height: 0;
+    transition: grid-template-columns 0.25s ease;
   }
 
   /* ── SIDEBAR ── */
@@ -409,9 +410,15 @@
     aside.hidden { transform: translateY(-100%); }
   }
   #viewer.expanded { grid-column: 1 / -1; }
-  main.sidebar-hidden { grid-template-columns: 1fr; }
+  main.sidebar-hidden { grid-template-columns: 0 1fr; }
+  main.sidebar-hidden aside {
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
   @media (max-width: 700px) {
-    main.sidebar-hidden { grid-template-rows: 0 1fr; }
+    main.sidebar-hidden { grid-template-columns: 1fr; grid-template-rows: 0 1fr; }
   }
 
   /* ── Chord Alternatives Modal ── */
@@ -494,18 +501,16 @@
     <label class="ctrl-label">Size</label>
     <button onclick="changeFontSize(-1)">A−</button>
     <button onclick="changeFontSize(1)">A+</button>
-    <button onclick="saveGlobalDefaults()" title="Save current speed & size as default for all songs" style="font-size:0.6rem;padding:3px 7px;border-color:var(--border);color:var(--text-muted)">Set Default</button>
+    <button onclick="saveGlobalDefaults()" title="Save current speed & size as default" style="font-size:0.6rem;padding:3px 7px;border-color:var(--border);color:var(--text-muted)">Set Default</button>
+    <button id="aiFormatBtn" onclick="openAiFormatModal()" title="Format chords with AI" style="border-color:var(--amber-dim);color:var(--amber-light)">✨ Format</button>
   </div>
-
-  <div class="sep"></div>
-
-  <button id="aiFormatBtn" onclick="openAiFormatModal()" title="Format chords with AI" style="border-color:var(--amber-dim);color:var(--amber-light)">✨ Format</button>
 
   <div class="spacer"></div>
   <div id="syncIndicator" style="display:none;font-size:0.7rem;color:var(--text-muted);font-family:monospace;margin-right:8px">
     <span id="syncText">⟳ Syncing…</span>
   </div>
   <button onclick="openSettings()" title="Settings" style="background:none;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer;padding:4px 8px">⚙</button>
+  <button onclick="openHelp()" title="Help" style="background:none;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer;padding:4px 8px">?</button>
   <div id="loadingIndicator" style="display:none"><div class="loading"></div></div>
 </header>
 
@@ -682,6 +687,54 @@
     <div class="modal-btns">
       <button onclick="resolveConfirm(false)" style="border-color:var(--border)">Cancel</button>
       <button onclick="resolveConfirm(true)" style="border-color:var(--red);color:var(--red)" id="confirmOkBtn">Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal-overlay" id="helpModal" onclick="if(event.target===this)closeHelp()">
+  <div class="modal-box" style="max-width:540px;width:94vw;max-height:85vh;overflow-y:auto;padding:24px 28px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--amber-light)">Matt's Tool — Help</div>
+      <button onclick="closeHelp()" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;padding:0 4px">✕</button>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;line-height:1.9;color:var(--text-dim)">
+
+      <div style="color:var(--amber);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px;margin-top:4px">📁 Library Tab</div>
+      <div>Your personal song collection. Songs are saved in your browser automatically.</div>
+      <div style="margin-top:4px"><b style="color:var(--text)">💾 Save File</b> — downloads your library baked into an HTML file. Open it on any device to have your songs.</div>
+      <div><b style="color:var(--text)">📂 Load File</b> — loads a previously saved library file and merges songs in.</div>
+      <div><b style="color:var(--text)">☁ Drive Backup</b> — saves your songs as a JSON file. Upload it to Google Drive manually to sync across devices.</div>
+      <div><b style="color:var(--text)">📥 Drive Restore</b> — picks a JSON backup file and merges the songs into your library.</div>
+
+      <div style="color:var(--amber);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px;margin-top:14px">🌐 Community Tab</div>
+      <div>Browse and load songs shared by others. Tap a song to load it — it gets added to your library automatically.</div>
+      <div style="margin-top:4px"><b style="color:var(--text)">✏ Edit</b> — appears in the header when a community song is loaded. Edit the chord sheet and submit it back as an improvement — creates a review request on GitHub.</div>
+
+      <div style="color:var(--amber);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px;margin-top:14px">🎵 Playing a Song</div>
+      <div><b style="color:var(--text)">Transpose</b> — shift all chords up or down by semitones to match your key.</div>
+      <div><b style="color:var(--text)">▶ Auto</b> — starts auto-scroll. The sidebar hides automatically so the song takes full screen. Tap ☰ to bring it back.</div>
+      <div><b style="color:var(--text)">Speed −/+</b> — controls how fast the song scrolls.</div>
+      <div><b style="color:var(--text)">A− / A+</b> — makes the text smaller or larger.</div>
+      <div><b style="color:var(--text)">Set Default</b> — saves your current speed and font size as the default for all songs.</div>
+
+      <div style="color:var(--amber);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px;margin-top:14px">✨ Format with AI</div>
+      <div>Fixes chord alignment so every chord sits directly above the syllable it belongs to. Works on any loaded song. Tap the button, preview the result, then Accept or Dismiss.</div>
+
+      <div style="color:var(--amber);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px;margin-top:14px">☰ Sidebar Toggle</div>
+      <div>Hides or shows the left sidebar. Also hides automatically when auto-scroll starts. Tap the chord sheet to hide it manually, tap ☰ to bring it back.</div>
+
+      <div style="color:var(--amber);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px;margin-top:14px">⌨ Keyboard Shortcuts</div>
+      <div><b style="color:var(--text)">Space</b> — start/stop auto-scroll</div>
+      <div><b style="color:var(--text)">Shift ↑ / Shift ↓</b> — transpose up/down</div>
+      <div><b style="color:var(--text)">R</b> — reset transpose</div>
+
+      <div style="color:var(--amber);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px;margin-top:14px">📱 Install on iPhone</div>
+      <div>Open in Safari → tap the Share button → <b style="color:var(--text)">Add to Home Screen</b>. The app works offline once installed.</div>
+
+    </div>
+    <div style="margin-top:18px;text-align:right">
+      <button onclick="closeHelp()" style="border-color:var(--border);color:var(--text-muted)">Close</button>
     </div>
   </div>
 </div>
@@ -2886,6 +2939,14 @@ document.getElementById('songList').addEventListener('click', function(e) {
   if (item) selectSong(item.dataset.id);
 });
 
+// ── Help ──────────────────────────────────────────────────────
+function openHelp() {
+  document.getElementById('helpModal').classList.add('visible');
+}
+function closeHelp() {
+  document.getElementById('helpModal').classList.remove('visible');
+}
+
 // ── AI Chord Formatter ────────────────────────────────────────
 let _aiFormattedContent = null;
 
@@ -2930,13 +2991,14 @@ ${currentSong.content}`;
     const response = await fetch(CF_WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt }),
+      signal: AbortSignal.timeout(30000)
     });
 
-    if (!response.ok) throw new Error(`Worker error ${response.status}`);
+    if (!response.ok) throw new Error(`Worker error ${response.status} — check Cloudflare dashboard`);
     const data = await response.json();
-    const formatted = (data.result || '').trim();
-    if (!formatted) throw new Error('Empty response from AI');
+    const formatted = (data.result || data.response || '').trim();
+    if (!formatted) throw new Error('Empty response — check Worker code has AI binding named "AI"');
 
     _aiFormattedContent = formatted;
     document.getElementById('aiModalMsg').textContent = 'Preview — looks good?';
