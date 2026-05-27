@@ -1595,7 +1595,9 @@ async function deleteSongFromGitHub(song) {
 // ── Community Library ─────────────────────────────────────────────
 const COMMUNITY_REPO = 'mgaudone-cmyk/guitar-chords-library';
 const COMMUNITY_API  = `https://api.github.com/repos/${COMMUNITY_REPO}/contents/guitar-chords-library/songs`;
-const COMMUNITY_TOKEN = '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';
+// No hardcoded token — GitHub revokes tokens found in public repos.
+// Reads use unauthenticated access (public repo, 60 req/hr).
+// Writes use the token saved in Settings (localStorage).
 const CF_WORKER_URL  = 'https://fretboard-ai.mgaud-one.workers.dev';
 let communityFiles = [];
 
@@ -1605,8 +1607,7 @@ async function loadCommunityList() {
   try {
     const res = await fetch(COMMUNITY_API, {
       headers: {
-        'Accept': 'application/vnd.github.v3+json',
-        'Authorization': `token ${COMMUNITY_TOKEN}`
+        'Accept': 'application/vnd.github.v3+json'
       },
       cache: 'no-cache'
     });
@@ -1700,6 +1701,12 @@ async function loadCommunitySong(encodedUrl, encodedName) {
 async function shareToCommunity() {
   if (!currentSong) return;
 
+  // Check for GitHub token
+  if (!getGhToken()) {
+    showToast('Set your GitHub token in Settings (⚙) to share songs', 'error');
+    return;
+  }
+
   // Ask for contributor name
   const name = await showNamePrompt();
   if (!name) return;
@@ -1717,7 +1724,7 @@ async function shareToCommunity() {
   let sha = null;
   try {
     const check = await fetch(apiUrl, {
-      headers: { Authorization: 'token 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', Accept: 'application/vnd.github.v3+json' }
+      headers: { Authorization: 'token ' + getGhToken(), Accept: 'application/vnd.github.v3+json' }
     });
     if (check.ok) {
       const existing = await check.json();
@@ -1736,7 +1743,7 @@ async function shareToCommunity() {
     const res = await fetch(apiUrl, {
       method: 'PUT',
       headers: {
-        Authorization: 'token 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',
+        Authorization: 'token ' + getGhToken(),
         Accept: 'application/vnd.github.v3+json',
         'Content-Type': 'application/json'
       },
@@ -3144,7 +3151,7 @@ if('serviceWorker' in navigator){
 </script>
 
 
-<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">2026-05-27 v01</div>
+<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">2026-05-27 v02</div>
 
 </body>
 </html>
