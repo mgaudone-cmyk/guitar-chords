@@ -155,18 +155,26 @@
     min-height: 0;
   }
 
-  .tab-bar { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .tab-btn { white-space: nowrap; flex-shrink: 0; }
+  .tab-bar { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
   .tab-btn {
-    flex: 1; padding: 10px;
+    flex: 1; padding: 10px 6px;
     border: none; border-radius: 0;
     background: transparent;
     color: var(--text-muted);
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.62rem;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
+    min-width: 0;
+    overflow: hidden;
   }
+  .tab-icon { font-size: 0.8rem; flex-shrink: 0; line-height: 1; }
+  .tab-label { overflow: hidden; text-overflow: ellipsis; }
   .tab-btn.active { color: var(--amber); background: rgba(212,146,42,0.07); border-bottom: 2px solid var(--amber); }
   .tab-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
   .tab-panel.active { display: flex; }
@@ -343,8 +351,10 @@
     main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
     #viewer { padding: 16px 14px; }
 
-    /* Smaller tab buttons to fit all 4 */
-    .tab-btn { font-size: 0.5rem; padding: 7px 4px; }
+    /* Responsive tab buttons — always show all 4 */
+    .tab-btn { font-size: 0.55rem; padding: 8px 4px; gap: 3px; }
+    .tab-icon { font-size: 0.72rem; }
+    .tab-label { font-size: 0.5rem; }
 
     /* Compact header */
     header { padding: 6px 10px; gap: 6px; }
@@ -398,6 +408,15 @@
     #viewer { padding: 10px 14px; }
   }
 
+
+  /* iPad / tablet portrait */
+  @media (min-width: 701px) and (max-width: 1024px) {
+    main { grid-template-columns: 280px 1fr; }
+    .tab-btn { font-size: 0.6rem; padding: 10px 6px; }
+    .tab-icon { font-size: 0.85rem; }
+    aside { min-width: 280px; }
+    #viewer { padding: 20px; }
+  }
   aside { transition: transform 0.25s ease, opacity 0.25s ease; }
   aside.hidden { 
     transform: translateX(-100%);
@@ -517,10 +536,10 @@
 <main>
   <aside>
     <div class="tab-bar">
-      <button class="tab-btn active" onclick="switchTab('library')" id="tab-library">📁 Library</button>
-      <button class="tab-btn" onclick="switchTab('drive')" id="tab-drive">☁ Drive</button>
-      <button class="tab-btn" onclick="switchTab('manual')" id="tab-manual">✏ Manual</button>
-      <button class="tab-btn" onclick="switchTab('community')" id="tab-community">🌐 Community</button>
+      <button class="tab-btn active" onclick="switchTab('library')" id="tab-library"><span class="tab-icon">📁</span><span class="tab-label">Library</span></button>
+      <button class="tab-btn" onclick="switchTab('drive')" id="tab-drive"><span class="tab-icon">☁</span><span class="tab-label">Drive</span></button>
+      <button class="tab-btn" onclick="switchTab('manual')" id="tab-manual"><span class="tab-icon">✏</span><span class="tab-label">Manual</span></button>
+      <button class="tab-btn" onclick="switchTab('community')" id="tab-community"><span class="tab-icon">🌐</span><span class="tab-label">Community</span></button>
     </div>
 
     <!-- LIBRARY -->
@@ -1576,7 +1595,7 @@ async function deleteSongFromGitHub(song) {
 // ── Community Library ─────────────────────────────────────────────
 const COMMUNITY_REPO = 'mgaudone-cmyk/guitar-chords-library';
 const COMMUNITY_API  = `https://api.github.com/repos/${COMMUNITY_REPO}/contents/guitar-chords-library/songs`;
-const COMMUNITY_TOKEN = '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';
+const COMMUNITY_TOKEN = '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';
 const CF_WORKER_URL  = 'https://fretboard-ai.mgaud-one.workers.dev';
 let communityFiles = [];
 
@@ -1613,7 +1632,7 @@ async function loadCommunityList() {
     listEl.innerHTML = '<div style="padding:12px;font-size:0.68rem;color:#ff6b6b;font-family:monospace;line-height:1.8">'
       + '<b>Failed to load songs</b><br>'
       + '<div style="background:#111;padding:6px;border-radius:4px;margin:4px 0;word-break:break-all;font-size:0.62rem">' + (err.message||err) + '</div>'
-      + '<div style="background:#111;padding:4px 6px;border-radius:4px;margin-bottom:8px;word-break:break-all;font-size:0.58rem;color:#aaa">URL: ' + COMMUNITY_API + '</div>'
+      + '<div style="background:#111;padding:6px 8px;border-radius:4px;margin-bottom:8px;word-break:break-all;font-size:0.6rem;color:#aaa;line-height:1.4">URL: ' + COMMUNITY_API + '</div>'
       + '<button onclick="loadCommunityList()" style="font-size:0.75rem;padding:8px 16px">↻ Try Again</button>'
       + '</div>';
   }
@@ -1674,39 +1693,7 @@ async function loadCommunitySong(encodedUrl, encodedName) {
     showToast('Could not load: ' + err.message, 'error');
   }
 }
-function filterCommunity() {
-  const q = document.getElementById('communitySearch').value.toLowerCase();
-  renderCommunityList(q ? communityFiles.filter(f => f.name.toLowerCase().includes(q)) : communityFiles);
-}
-
-async function loadCommunitySong(encodedUrl, encodedName) {
-  const url  = decodeURIComponent(encodedUrl);
-  const name = decodeURIComponent(encodedName);
-  try {
-    showToast('Loading…', 'success');
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Could not fetch song');
-
-    let text;
-    if (url.toLowerCase().endsWith('.docx')) {
-      const buf = await res.arrayBuffer();
-      text = await extractDocxText(buf);
-    } else {
-      text = await res.text();
-    }
-    text = cleanText(text);
-
-    const song = { id: Date.now().toString(), title: name, key: detectKey(text), content: text, source: url };
-    songs.unshift(song); saveSongs(); renderSongList(); selectSong(song.id);
-    showToast(`"${name}" added to your library ✓`, 'success');
-  } catch(err) {
-    showToast('Could not load song: ' + err.message, 'error');
-  }
-}
-
-// Auto-load community list when tab is opened
-const _origSwitchTab = switchTab;
-// Wrap switchTab to trigger community load on first open
+// (duplicate removed)
 
 
 // ── Share to Community ────────────────────────────────────────────
@@ -1730,7 +1717,7 @@ async function shareToCommunity() {
   let sha = null;
   try {
     const check = await fetch(apiUrl, {
-      headers: { Authorization: 'token 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', Accept: 'application/vnd.github.v3+json' }
+      headers: { Authorization: 'token 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', Accept: 'application/vnd.github.v3+json' }
     });
     if (check.ok) {
       const existing = await check.json();
@@ -1749,7 +1736,7 @@ async function shareToCommunity() {
     const res = await fetch(apiUrl, {
       method: 'PUT',
       headers: {
-        Authorization: 'token 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',
+        Authorization: 'token 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',
         Accept: 'application/vnd.github.v3+json',
         'Content-Type': 'application/json'
       },
@@ -3157,7 +3144,7 @@ if('serviceWorker' in navigator){
 </script>
 
 
-<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">2026-05-22 v01</div>
+<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">2026-05-27 v01</div>
 
 </body>
 </html>
