@@ -2972,8 +2972,12 @@ function saveEditedSong() {
   currentSong.key     = newKey || detectKey(newContent);
   currentSong.content = newContent;
 
+  // Ensure the songs array is updated
   const idx = songs.findIndex(s => s.id === currentSong.id);
-  if (idx !== -1) songs[idx] = currentSong;
+  if (idx !== -1) {
+    songs[idx] = { ...currentSong };
+    currentSong = songs[idx];
+  }
   saveSongs();
   renderSongList();
   renderCurrentSong();
@@ -3216,7 +3220,7 @@ if('serviceWorker' in navigator){
 </script>
 
 
-<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">2026-05-28 v02</div>
+<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">2026-05-28 v03</div>
 
 </body>
 </html>
