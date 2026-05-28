@@ -521,7 +521,7 @@
     <button onclick="changeFontSize(-1)">A−</button>
     <button onclick="changeFontSize(1)">A+</button>
     <button onclick="saveGlobalDefaults()" title="Save current speed & size as default" style="font-size:0.6rem;padding:3px 7px;border-color:var(--border);color:var(--text-muted)">Set Default</button>
-    <button id="aiFormatBtn" onclick="openAiFormatModal()" title="Format chords with AI" style="border-color:var(--amber-dim);color:var(--amber-light)">✨ Format</button>
+    <button id="editBtn" onclick="toggleEditMode()" title="Edit song content" style="border-color:var(--amber-dim);color:var(--amber-light)">✏ Edit</button>
   </div>
 
   <div class="spacer"></div>
@@ -723,7 +723,7 @@
       <div>Your personal song collection. Songs are saved in your browser automatically.</div>
       <div style="margin-top:4px"><b style="color:var(--text)">💾 Save File</b> — downloads your library baked into an HTML file. Open it on any device to have your songs.</div>
       <div><b style="color:var(--text)">📂 Load File</b> — loads a previously saved library file and merges songs in.</div>
-      <div><b style="color:var(--text)">☁ Drive Backup</b> — saves your songs as a JSON file. Upload it to Google Drive manually to sync across devices.</div>
+      <div><b style="color:var(--text)">☁ Drive Backup</b> — saves your songs directly to Google Drive. Sign in with your Google account and your library is backed up in the cloud, accessible from any device.</div>
       <div><b style="color:var(--text)">📥 Drive Restore</b> — picks a JSON backup file and merges the songs into your library.</div>
 
       <div style="color:var(--amber);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px;margin-top:14px">🌐 Community Tab</div>
@@ -758,19 +758,23 @@
   </div>
 </div>
 
-<!-- AI Format Modal -->
-<div class="modal-overlay" id="aiModal">
-  <div class="modal-box" style="max-width:480px;width:92vw">
-    <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--amber-light);margin-bottom:8px">✨ AI Chord Formatter</div>
-    <div class="modal-msg" id="aiModalMsg" style="font-size:0.75rem;line-height:1.6;color:var(--text-dim)">
-      AI will reformat this song so every chord sits directly above the correct syllable — perfect monospace alignment.
-    </div>
-    <div id="aiModalPreview" style="display:none;margin:12px 0;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:0.7rem;line-height:1.7;color:var(--amber-light);white-space:pre;overflow-x:auto;max-height:240px;overflow-y:auto"></div>
-    <div class="modal-btns" style="margin-top:14px">
-      <button onclick="closeAiModal()" style="border-color:var(--border);color:var(--text-muted)" id="aiCancelBtn">Cancel</button>
+<!-- Edit Song Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box" style="max-width:600px;width:95vw;max-height:90vh;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-shrink:0">
+      <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--amber-light)">✏ Edit Song</div>
       <div style="flex:1"></div>
-      <button id="aiRunBtn" onclick="runAiFormat()" style="border-color:var(--amber-dim);color:var(--amber-light);background:rgba(212,146,42,0.1)">✨ Generate</button>
-      <button id="aiAcceptBtn" onclick="acceptAiFormat()" style="display:none;border-color:var(--green);color:var(--green);background:rgba(76,175,125,0.1)">✓ Accept</button>
+      <input type="text" id="editTitle" class="sb-input" placeholder="Song title" style="max-width:200px;margin:0;font-size:0.7rem">
+      <input type="text" id="editKey" class="sb-input" placeholder="Key" style="width:50px;margin:0;font-size:0.7rem">
+    </div>
+    <div style="font-size:0.55rem;color:var(--text-muted);margin-bottom:6px;flex-shrink:0;line-height:1.4">
+      Edit chords and lyrics directly. Chord lines go above lyric lines. Use [Verse], [Chorus], etc. for sections.
+    </div>
+    <textarea id="editContent" style="flex:1;min-height:300px;width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:0.72rem;line-height:1.7;color:var(--amber-light);resize:vertical;box-sizing:border-box;tab-size:4" spellcheck="false"></textarea>
+    <div class="modal-btns" style="margin-top:10px;flex-shrink:0">
+      <button onclick="closeEditModal()" style="border-color:var(--border);color:var(--text-muted)">Cancel</button>
+      <div style="flex:1"></div>
+      <button onclick="saveEditedSong()" style="border-color:var(--green);color:var(--green);background:rgba(76,175,125,0.1)">✓ Save Changes</button>
     </div>
   </div>
 </div>
@@ -2941,146 +2945,207 @@ function closeHelp() {
   document.getElementById('helpModal').classList.remove('visible');
 }
 
-// ── AI Chord Formatter ────────────────────────────────────────
-let _aiFormattedContent = null;
-
-function openAiFormatModal() {
+// ── Song Editor ───────────────────────────────────────────────
+function toggleEditMode() {
   if (!currentSong) { showToast('Load a song first', 'error'); return; }
-  _aiFormattedContent = null;
-  document.getElementById('aiModalMsg').textContent =
-    `Generate a clean, accurate chord sheet for "${currentSong.title}" — AI will produce properly aligned chords above the right syllables using its knowledge of the song.`;
-  document.getElementById('aiModalPreview').style.display = 'none';
-  document.getElementById('aiRunBtn').style.display = 'inline-block';
-  document.getElementById('aiRunBtn').textContent = '✨ Generate';
-  document.getElementById('aiAcceptBtn').style.display = 'none';
-  document.getElementById('aiCancelBtn').textContent = 'Cancel';
-  document.getElementById('aiModal').classList.add('visible');
+  document.getElementById('editTitle').value = currentSong.title || '';
+  document.getElementById('editKey').value = currentSong.key || '';
+  document.getElementById('editContent').value = currentSong.content || '';
+  document.getElementById('editModal').classList.add('visible');
+  // Focus the textarea
+  setTimeout(() => document.getElementById('editContent').focus(), 100);
 }
 
-function closeAiModal() {
-  document.getElementById('aiModal').classList.remove('visible');
-  _aiFormattedContent = null;
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('visible');
 }
 
-async function runAiFormat() {
+function saveEditedSong() {
   if (!currentSong) return;
-  const btn = document.getElementById('aiRunBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ Generating…';
-  document.getElementById('aiModalMsg').textContent = `Asking AI to generate "${currentSong.title}" from scratch…`;
+  const newTitle   = document.getElementById('editTitle').value.trim();
+  const newKey     = document.getElementById('editKey').value.trim().toUpperCase();
+  const newContent = document.getElementById('editContent').value;
+
+  if (!newTitle) { showToast('Song title is required', 'error'); return; }
+
+  currentSong.title   = newTitle;
+  currentSong.key     = newKey || detectKey(newContent);
+  currentSong.content = newContent;
+
+  const idx = songs.findIndex(s => s.id === currentSong.id);
+  if (idx !== -1) songs[idx] = currentSong;
+  saveSongs();
+  renderSongList();
+  renderCurrentSong();
+  renderChordStrip();
+  closeEditModal();
+  showToast('Song updated ✓', 'success');
+}
+
+// ── Google Drive Picker API ────────────────────────────────────
+// Uses Google Picker to save/load backup files directly to/from Google Drive.
+// Requires a Google Cloud project with Picker API enabled and OAuth client ID.
+// Setup: https://console.cloud.google.com → APIs → Enable Google Picker API → Create OAuth 2.0 Client ID (Web app)
+const GOOGLE_CLIENT_ID = '242527500321-97jnlkg9drbteej4hb749o2tm1bn20rk.apps.googleusercontent.com';
+const GOOGLE_API_KEY   = 'AIzaSyBfZtlvAZzx7aMHdCIH0VPS3y1rJb5IgdM';
+let gisInited = false, gapiInited = false, accessToken = null;
+
+function loadGoogleApis() {
+  return new Promise((resolve, reject) => {
+    if (typeof gapi !== 'undefined' && typeof google !== 'undefined') { resolve(); return; }
+    // Load GAPI
+    const gapiScript = document.createElement('script');
+    gapiScript.src = 'https://apis.google.com/js/api.js';
+    gapiScript.onload = () => {
+      gapi.load('picker', () => { gapiInited = true; checkGoogleReady(resolve); });
+    };
+    document.head.appendChild(gapiScript);
+    // Load GIS (Google Identity Services)
+    const gisScript = document.createElement('script');
+    gisScript.src = 'https://accounts.google.com/gsi/client';
+    gisScript.onload = () => { gisInited = true; checkGoogleReady(resolve); };
+    document.head.appendChild(gisScript);
+    setTimeout(() => reject(new Error('Google APIs failed to load')), 10000);
+  });
+}
+function checkGoogleReady(resolve) { if (gisInited && gapiInited) resolve(); }
+
+function getGoogleAuth() {
+  const clientId = GOOGLE_CLIENT_ID;
+  if (!clientId) {
+    showToast('Set your Google Client ID in Settings (⚙) first', 'error');
+    return Promise.reject(new Error('No Client ID'));
+  }
+  return new Promise((resolve, reject) => {
+    const tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: clientId,
+      scope: 'https://www.googleapis.com/auth/drive.file',
+      callback: (resp) => {
+        if (resp.error) { reject(new Error(resp.error)); return; }
+        accessToken = resp.access_token;
+        resolve(accessToken);
+      },
+    });
+    tokenClient.requestAccessToken({ prompt: '' });
+  });
+}
+
+async function backupToDrive() {
+  if (!songs.length) { showToast('No songs to backup!', 'error'); return; }
 
   try {
-    const prompt = `Generate a complete, accurate guitar chord sheet for the song "${currentSong.title}".
+    showToast('Connecting to Google Drive…', 'success');
+    await loadGoogleApis();
+    const token = await getGoogleAuth();
 
-FORMAT RULES — follow exactly:
-1. Every chord line must be placed IMMEDIATELY above its matching lyric line — never group chords separately
-2. The pattern is always: [chord line] then [lyric line] then [chord line] then [lyric line]
-3. Each chord is positioned using spaces so it sits above the exact syllable where the chord change happens
-4. Use spaces only for alignment — no tabs
-5. Section headers on their own line: [Intro] [Verse 1] [Chorus] [Bridge] [Outro]
-6. One blank line between sections
-7. Include ALL lyrics — do not write "repeat" or abbreviate anything
-8. Return ONLY the chord sheet — no explanation, no markdown fences, no preamble
+    const backup = { app: "Matt's Tool", date: new Date().toISOString(), songs };
+    const content = JSON.stringify(backup, null, 2);
+    const filename = "mattstool-backup-" + new Date().toISOString().slice(0,10) + ".json";
 
-CORRECT EXAMPLE — this is exactly how each section should look:
-[Verse 1]
-G/B  C      G/B  Am
-I    close  my   eyes
-G                    Dm7               Am              G/B
-only for a moment,   and the moment's  gone
+    // Check for existing backup file to update
+    const searchRes = await fetch(
+      "https://www.googleapis.com/drive/v3/files?q=" + encodeURIComponent("name='" + filename + "' and trashed=false") + "&spaces=drive",
+      { headers: { Authorization: 'Bearer ' + token } }
+    );
+    const searchData = await searchRes.json();
+    const existingId = searchData.files?.[0]?.id;
 
-[Chorus]
-D/F#      G            Am        Am/G
-Dust in the wind
-D/F#                G             Am
-All they are is dust in the wind
-
-Now generate the full chord sheet for: ${currentSong.title}`;
-
-    let response;
-    try {
-      response = await fetch(CF_WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
-        signal: AbortSignal.timeout(60000)
+    if (existingId) {
+      // Update existing file
+      await fetch("https://www.googleapis.com/upload/drive/v3/files/" + existingId + "?uploadType=media", {
+        method: 'PATCH',
+        headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: content
       });
-    } catch(fetchErr) {
-      throw new Error('Cannot reach AI Worker. Check that the Worker is deployed in Cloudflare with the AI binding named "AI".');
+    } else {
+      // Create new file
+      const metadata = { name: filename, mimeType: 'application/json' };
+      const form = new FormData();
+      form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+      form.append('file', new Blob([content], { type: 'application/json' }));
+      await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + token },
+        body: form
+      });
     }
 
-    if (!response.ok) {
-      const errText = await response.text().catch(() => '');
-      throw new Error(`Worker error ${response.status}${errText ? ': ' + errText.slice(0,100) : ''}`);
-    }
-
-    const data = await response.json();
-    const generated = (data.result || data.response || '').trim();
-    if (!generated) throw new Error('AI returned an empty result. Check Worker logs in Cloudflare dashboard.');
-
-    // Strip any markdown code fences the model might add
-    _aiFormattedContent = generated.replace(/^```[^\n]*\n?/gm, '').replace(/```$/gm, '').trim();
-
-    document.getElementById('aiModalMsg').innerHTML =
-      `<b style="color:var(--amber-light)">${esc(currentSong.title)}</b> — generated from AI knowledge. Review carefully before accepting.`;
-    document.getElementById('aiModalPreview').textContent = _aiFormattedContent;
-    document.getElementById('aiModalPreview').style.display = 'block';
-    document.getElementById('aiRunBtn').style.display = 'none';
-    document.getElementById('aiAcceptBtn').style.display = 'inline-block';
-    document.getElementById('aiCancelBtn').textContent = 'Dismiss';
-
-  } catch(e) {
-    document.getElementById('aiModalMsg').textContent = '⚠ ' + e.message;
+    showToast('Backup saved to Google Drive — ' + songs.length + ' songs ✓', 'success');
+  } catch(err) {
+    if (err.message === 'No Client ID') return;
+    // Fallback to local download
+    console.warn('Drive backup failed, falling back to local download:', err);
+    const backup = { app: "Matt's Tool", date: new Date().toISOString(), songs };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'mattstool-backup-' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('Drive unavailable — saved locally instead', 'success');
   }
-
-  btn.disabled = false;
-  btn.textContent = '✨ Generate';
 }
 
-function acceptAiFormat() {
-  if (!_aiFormattedContent || !currentSong) return;
-  currentSong.content = _aiFormattedContent;
-  const idx = songs.findIndex(s => s.id === currentSong.id);
-  if (idx !== -1) { songs[idx] = currentSong; saveSongs(); }
-  closeAiModal();
-  renderCurrentSong();
-  showToast('AI formatting applied ✓', 'success');
-}
+async function restoreFromDrive() {
+  try {
+    showToast('Connecting to Google Drive…', 'success');
+    await loadGoogleApis();
+    const token = await getGoogleAuth();
 
-// ── Drive Backup / Restore ────────────────────────────────────
-function backupToDrive() {
-  if (!songs.length) { showToast('No songs to backup!', 'error'); return; }
-  const backup = { app: "Matt's Tool", date: new Date().toISOString(), songs };
-  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `mattstool-backup-${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  showToast(`Backup saved — ${songs.length} songs. Upload to Drive manually.`, 'success');
-}
-
-function restoreFromDrive() {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json';
-  input.onchange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      const text = await file.text();
-      const backup = JSON.parse(text);
-      if (!backup.songs || !Array.isArray(backup.songs)) throw new Error('Not a valid backup file');
-      const existingTitles = new Set(songs.map(s => s.title.toLowerCase()));
-      const newSongs = backup.songs.filter(s => !existingTitles.has(s.title.toLowerCase()));
-      songs = [...newSongs, ...songs];
-      saveSongs(); renderSongList();
-      showToast(`Restored ${newSongs.length} songs ✓`, 'success');
-    } catch(err) {
-      showToast('Could not read backup: ' + err.message, 'error');
-    }
-  };
-  input.click();
+    const picker = new google.picker.PickerBuilder()
+      .setTitle('Select Matt\'s Tool Backup')
+      .addView(new google.picker.DocsView()
+        .setMimeTypes('application/json')
+        .setQuery('mattstool-backup')
+        .setMode(google.picker.DocsViewMode.LIST))
+      .setOAuthToken(token)
+      .setDeveloperKey(GOOGLE_API_KEY)
+      .setCallback(async (data) => {
+        if (data.action === google.picker.Action.PICKED) {
+          const fileId = data.docs[0].id;
+          try {
+            const res = await fetch("https://www.googleapis.com/drive/v3/files/" + fileId + "?alt=media", {
+              headers: { Authorization: 'Bearer ' + token }
+            });
+            const backup = await res.json();
+            if (!backup.songs || !Array.isArray(backup.songs)) throw new Error('Not a valid backup file');
+            const existingTitles = new Set(songs.map(s => s.title.toLowerCase()));
+            const newSongs = backup.songs.filter(s => !existingTitles.has(s.title.toLowerCase()));
+            songs = [...newSongs, ...songs];
+            saveSongs(); renderSongList();
+            showToast('Restored ' + newSongs.length + ' new songs from Drive ✓', 'success');
+          } catch(err) {
+            showToast('Could not read backup: ' + err.message, 'error');
+          }
+        }
+      })
+      .build();
+    picker.setVisible(true);
+  } catch(err) {
+    if (err.message === 'No Client ID') return;
+    // Fallback to local file picker
+    console.warn('Drive restore failed, falling back to local picker:', err);
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const backup = JSON.parse(text);
+        if (!backup.songs || !Array.isArray(backup.songs)) throw new Error('Not a valid backup file');
+        const existingTitles = new Set(songs.map(s => s.title.toLowerCase()));
+        const newSongs = backup.songs.filter(s => !existingTitles.has(s.title.toLowerCase()));
+        songs = [...newSongs, ...songs];
+        saveSongs(); renderSongList();
+        showToast('Restored ' + newSongs.length + ' songs ✓', 'success');
+      } catch(err2) {
+        showToast('Could not read backup: ' + err2.message, 'error');
+      }
+    };
+    input.click();
+  }
 }
 
 // ── Init (async to support window.storage) ────────────────────
@@ -3151,7 +3216,7 @@ if('serviceWorker' in navigator){
 </script>
 
 
-<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">2026-05-27 v02</div>
+<div id="appVersion" style="position:fixed;bottom:8px;right:10px;font-size:0.72rem;font-weight:bold;color:#FFD700;font-family:monospace;background:#000;padding:3px 10px;border-radius:4px;border:1px solid #FFD700;opacity:1;pointer-events:none;z-index:9999">2026-05-28 v02</div>
 
 </body>
 </html>
