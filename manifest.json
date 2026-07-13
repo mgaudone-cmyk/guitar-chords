@@ -1,0 +1,26 @@
+{
+  "name": "Matt's Tool \u2013 Guitar Chord Sheets",
+  "short_name": "Matt's Tool",
+  "description": "Offline-first guitar chord sheet library and player",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0e0c0a",
+  "theme_color": "#1a1714",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
